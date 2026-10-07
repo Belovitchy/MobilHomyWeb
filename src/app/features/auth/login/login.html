@@ -1,0 +1,41 @@
+<div class="flex min-h-screen items-center justify-center bg-surface px-4">
+  <div class="w-full max-w-sm rounded-xl border border-line bg-white p-8 shadow-sm">
+    <h1 class="text-center text-2xl font-bold text-ink">
+      Mobil<span class="text-accent">Homy</span>
+    </h1>
+    <p class="mt-1 text-center text-sm text-soft">Connexion à votre espace</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 space-y-4">
+      <div>
+        <label class="mb-1 block text-xs text-soft" for="login">Email (identifiant)</label>
+        <input
+          id="login"
+          type="email"
+          formControlName="login"
+          class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+        />
+      </div>
+      <div>
+        <label class="mb-1 block text-xs text-soft" for="password">Mot de passe</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+        />
+      </div>
+
+      @if (error()) {
+        <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ error() }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full rounded-lg bg-accent py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+      >
+        {{ loading() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+    </form>
+  </div>
+</div>
