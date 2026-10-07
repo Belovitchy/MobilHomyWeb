@@ -19,19 +19,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/admin-home/admin-home').then((m) => m.AdminHome),
   },
   {
-    path: 'proprietaire',
-    canActivate: [authGuard, roleGuard('PROPRIETAIRE')],
+    path: 'owner',
+    canActivate: [authGuard, roleGuard('OWNER')],
     loadComponent: () => import('./features/owner/owner-home/owner-home').then((m) => m.OwnerHome),
   },
   {
-    path: 'gerant',
-    canActivate: [authGuard, roleGuard('GERANT')],
+    path: 'manager',
+    canActivate: [authGuard, roleGuard('MANAGER')],
     loadComponent: () =>
       import('./features/manager/manager-home/manager-home').then((m) => m.ManagerHome),
   },
   {
-    path: 'vacancier',
-    canActivate: [authGuard, roleGuard('VACANCIER')],
+    path: 'vacationer',
+    canActivate: [authGuard, roleGuard('VACATIONER')],
     loadComponent: () =>
       import('./features/vacationer/vacationer-home/vacationer-home').then((m) => m.VacationerHome),
   },

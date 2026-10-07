@@ -30,9 +30,9 @@ export class Login {
       next: (res) => {
         const routes: Record<string, string> = {
           ADMIN: '/admin',
-          PROPRIETAIRE: '/proprietaire',
-          GERANT: '/gerant',
-          VACANCIER: '/vacancier',
+          OWNER: '/owner',
+          MANAGER: '/manager',
+          VACATIONER: '/vacationer',
         };
         this.router.navigateByUrl(routes[res.authority] ?? '/accueil');
       },

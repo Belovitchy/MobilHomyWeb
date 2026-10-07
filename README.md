@@ -1,4 +1,4 @@
-![CI Status](https://github.com/TON_PSEUDO_GITHUB/MobilHomyWeb/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://github.com/belovitchy/MobilHomyWeb/actions/workflows/ci.yml/badge.svg)
 
 # MobilhomyWeb
 
