@@ -1,3 +1,5 @@
+![CI Status](https://github.com/TON_PSEUDO_GITHUB/MobilHomyWeb/actions/workflows/ci.yml/badge.svg)
+
 # MobilhomyWeb
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.2.
