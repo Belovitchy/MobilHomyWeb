@@ -1,1 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+/* 🎨 Palette MobilHomy ( issue des maquettes ) */
+@theme {
+  --color-ink: #1F2937;         /* texte principal      */
+  --color-soft: #6B7280;        /* texte secondaire     */
+  --color-line: #D8DBE0;        /* bordures             */
+  --color-surface: #F4F5F4;     /* fond de page         */
+  --color-accent: #2E6E5A;      /* vert MobilHomy       */
+  --color-accent-soft: #E7F0EC; /* vert clair           */
+}
