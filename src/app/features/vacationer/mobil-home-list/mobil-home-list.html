@@ -1,0 +1,118 @@
+<div class="bg-surface pb-12">
+  <!-- Barre de recherche -->
+  <section class="border-b border-line bg-white">
+    <div class="mx-auto max-w-5xl px-4 py-8">
+      <h1 class="text-2xl font-bold text-ink">Trouvez votre mobil-home</h1>
+      <p class="mt-1 text-sm text-soft">Consultation libre — réservez en créant un compte.</p>
+
+      <div
+        class="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-line bg-white p-4 shadow-sm"
+      >
+        <label class="min-w-40 flex-1">
+          <span class="mb-1 block text-xs text-soft">Département</span>
+          <input
+            [(ngModel)]="department"
+            placeholder="Ex : 17"
+            class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+        </label>
+        <label class="min-w-36 flex-1">
+          <span class="mb-1 block text-xs text-soft">Arrivée</span>
+          <input
+            type="date"
+            [(ngModel)]="startDate"
+            class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+        </label>
+        <label class="min-w-36 flex-1">
+          <span class="mb-1 block text-xs text-soft">Départ</span>
+          <input
+            type="date"
+            [(ngModel)]="endDate"
+            class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+        </label>
+        <label class="w-28">
+          <span class="mb-1 block text-xs text-soft">Voyageurs</span>
+          <input
+            type="number"
+            min="1"
+            [(ngModel)]="capacity"
+            class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+        </label>
+        <button
+          (click)="search()"
+          class="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+        >
+          Rechercher
+        </button>
+      </div>
+
+      @if (dateRangeInvalid) {
+        <p class="mt-2 text-xs text-red-700">
+          ⚠️ La date d'arrivée doit être antérieure à la date de départ — filtre par dates ignoré.
+        </p>
+      }
+    </div>
+  </section>
+
+  <!-- Liste -->
+  <section class="mx-auto max-w-5xl px-4 pt-8">
+    <div class="mb-3 flex items-baseline justify-between">
+      <h2 class="font-semibold text-ink">Mobil-homes disponibles</h2>
+      <span class="text-xs text-soft">{{ availableCount }} résultat(s)</span>
+    </div>
+
+    @if (loading()) {
+      <p class="text-sm text-soft">Chargement…</p>
+    } @else if (filteredHomes.length === 0) {
+      <p class="text-sm text-soft">Aucun mobil-home ne correspond à votre recherche.</p>
+    }
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      @for (home of filteredHomes; track home.id) {
+        <a
+          [routerLink]="['/mobil-homes', home.id]"
+          class="overflow-hidden rounded-xl border border-line bg-white shadow-sm transition hover:shadow-md"
+        >
+          <div class="h-36 bg-gray-200">
+            @if (home.images?.length) {
+              <img
+                [src]="imageUrl(home.images[0])"
+                [alt]="home.name"
+                class="h-full w-full object-cover"
+                (error)="$any($event.target).style.display = 'none'"
+              />
+            } @else {
+              <div
+                class="flex h-full items-center justify-center text-xs tracking-widest text-gray-500"
+              >
+                ⌂ PHOTO
+              </div>
+            }
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <b class="text-sm text-ink">« {{ home.name }} »</b>
+              <span
+                [class]="
+                  isAvailable(home)
+                    ? 'rounded-full border border-accent bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent'
+                    : 'rounded-full border border-line bg-gray-100 px-2 py-0.5 text-xs font-semibold text-soft'
+                "
+              >
+                {{ isAvailable(home) ? 'Dispo' : 'Complet' }}
+              </span>
+            </div>
+            <p class="mt-1 line-clamp-2 text-xs text-soft">{{ home.description }}</p>
+            <div class="mt-2 flex items-center justify-between text-xs">
+              <span class="text-soft">{{ home.location }} · {{ home.capacity }} pers.</span>
+              <b class="text-sm text-ink">{{ home.price }} €/nuit</b>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </section>
+</div>

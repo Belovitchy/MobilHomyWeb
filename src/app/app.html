@@ -1,2 +1,21 @@
-<h1>{{ title() }}</h1>
-<router-outlet />
+<header class="border-b border-line bg-white">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <a routerLink="/" class="text-lg font-bold text-ink"
+      >Mobil<span class="text-accent">Homy</span></a
+    >
+    <nav class="flex items-center gap-4 text-sm">
+      @if (auth.isAuthenticated()) {
+        <span class="text-soft"
+          >{{ auth.currentUser()?.firstname }} · {{ auth.currentUser()?.authority }}</span
+        >
+        <a routerLink="/mon-compte/reservations" class="text-soft hover:text-accent"
+          >Mes réservations</a
+        >
+        <button (click)="logout()" class="text-soft hover:text-accent">Déconnexion</button>
+      } @else {
+        <a routerLink="/login" class="text-soft hover:text-accent">Connexion</a>
+      }
+    </nav>
+  </div>
+</header>
+<main><router-outlet /></main>
