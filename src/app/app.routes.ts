@@ -4,6 +4,7 @@ import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
 import { MobilHomeDetail } from './features/vacationer/mobil-home-detail/mobil-home-detail';
 import { MobilHomeList } from './features/vacationer/mobil-home-list/mobil-home-list';
+import { MyReservations } from './features/vacationer/my-reservations/my-reservations';
 import { ReservationForm } from './features/vacationer/reservation-form/reservation-form';
 
 export const routes: Routes = [
@@ -18,6 +19,11 @@ export const routes: Routes = [
     path: 'mobil-homes/:id/reserver',
     component: ReservationForm,
     canActivate: [roleGuard('VACATIONER')], // VACATIONER
+  },
+  {
+    path: 'mon-compte/reservations',
+    canActivate: [roleGuard('VACATIONER')],
+    component: MyReservations,
   },
 
   { path: 'login', component: Login },

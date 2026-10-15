@@ -89,6 +89,7 @@ export class ReservationForm {
         age: Number(o.age),
       })),
     };
+    console.log('Reservation payload', payload);
     this.reservationApi.create(payload).subscribe({
       next: () =>
         this.router.navigate(['/mon-compte/reservations'], {

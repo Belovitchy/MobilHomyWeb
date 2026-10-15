@@ -38,6 +38,7 @@ export class AuthService {
   private store(res: LoginResponse): void {
     localStorage.setItem(TOKEN_KEY, res.token);
     const user: CurrentUser = {
+      userId: res.userId,
       firstname: res.firstname,
       name: res.name,
       authority: res.authority,

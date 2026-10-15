@@ -3,17 +3,19 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { MyReservation, ReservationPayload } from '../models/vacationer.models';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
   private readonly http = inject(HttpClient);
-  private readonly api = `${environment.apiUrl}/reservations`;
+  private authService = inject(AuthService);
+  private readonly api = `${environment.apiUrl}/vacationer/reservations`;
 
   create(payload: ReservationPayload): Observable<MyReservation> {
     return this.http.post<MyReservation>(this.api, payload);
   }
 
-  mine(): Observable<MyReservation[]> {
+  mine(idVacationer: number): Observable<MyReservation[]> {
     return this.http.get<MyReservation[]>(`${this.api}/mine`);
   }
 
