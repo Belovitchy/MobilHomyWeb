@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MyReservation, ReservationPayload } from '../models/vacationer.models';
+import { Reservation, ReservationPayload, ReservationUpdate } from '../models/reservation.models';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -11,15 +11,24 @@ export class ReservationService {
   private authService = inject(AuthService);
   private readonly api = `${environment.apiUrl}/vacationer/reservations`;
 
-  create(payload: ReservationPayload): Observable<MyReservation> {
-    return this.http.post<MyReservation>(this.api, payload);
+  create(payload: ReservationPayload): Observable<Reservation> {
+    return this.http.post<Reservation>(this.api, payload);
   }
 
-  mine(idVacationer: number): Observable<MyReservation[]> {
-    return this.http.get<MyReservation[]>(`${this.api}/mine`);
+  mine(): Observable<Reservation[]> {
+    return this.http.get<Reservation[]>(`${this.api}/mine`);
   }
 
-  signContract(contractId: number): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/contracts/${contractId}/sign`, {});
+  getById(id: number): Observable<Reservation> {
+    return this.http.get<Reservation>(`${this.api}/${id}`);
+  }
+
+  /**
+   * Met à jour immat + occupants d'une résa PENDING.
+   * Le back passe la résa en COMPLETED quand tout est renseigné.
+   * ⚠️ Adapte la route/verbe si ton controller diffère (PATCH, /complete...).
+   */
+  update(id: number, payload: ReservationUpdate): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.api}/${id}`, payload);
   }
 }

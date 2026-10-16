@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment.development';
-import { MobilHome } from '../../../core/models/vacationer.models';
+import { MobilHome } from '../../../core/models/mobilhome.models';
 import { MobilHomeService } from '../../../core/services/mobil-home.service';
 
 interface CalendarDay {
@@ -96,7 +96,6 @@ export class MobilHomeDetail implements OnChanges {
 
   // --- Navigation ---
   goReserve(): void {
-    
     this.router.navigate(['/mobil-homes', this.id, 'reserver'], {
       queryParams: { start: this.startDate || null, end: this.endDate || null },
     });

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { roleGuard } from './core/guards/auth.guards';
 import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
+import { CompleteReservation } from './features/vacationer/complete-reservation/complete-reservation';
 import { MobilHomeDetail } from './features/vacationer/mobil-home-detail/mobil-home-detail';
 import { MobilHomeList } from './features/vacationer/mobil-home-list/mobil-home-list';
 import { MyReservations } from './features/vacationer/my-reservations/my-reservations';
@@ -19,6 +20,11 @@ export const routes: Routes = [
     path: 'mobil-homes/:id/reserver',
     component: ReservationForm,
     canActivate: [roleGuard('VACATIONER')], // VACATIONER
+  },
+  {
+    path: 'mon-compte/reservations/:id/completer',
+    component: CompleteReservation,
+    canActivate: [roleGuard('VACATIONER')],
   },
   {
     path: 'mon-compte/reservations',

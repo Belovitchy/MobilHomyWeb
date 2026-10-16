@@ -1,0 +1,117 @@
+<div class="mx-auto max-w-3xl px-4 py-8">
+  @if (notFound()) {
+    <p class="text-sm text-red-700">
+      Réservation introuvable.
+      <a routerLink="/mon-compte/reservations" class="text-accent underline">Retour</a>
+    </p>
+  } @else if (reservation(); as res) {
+    <a routerLink="/mon-compte/reservations" class="text-xs text-soft hover:text-accent">
+      ← Mes réservations
+    </a>
+
+    <h1 class="mt-2 text-xl font-bold text-ink">Compléter la demande</h1>
+    <p class="mt-1 text-sm text-soft">
+      « {{ res.mobilhomeName }} » · {{ res.location }} — {{ res.start_date }} → {{ res.end_date }}
+    </p>
+
+    <form [formGroup]="form" class="mt-6 space-y-5">
+      <!-- Immat -->
+      <div class="rounded-xl border border-line bg-white p-4">
+        <label>
+          <span class="mb-1 block text-xs text-soft">Plaque d'immatriculation (accès camping)</span>
+          <input
+            formControlName="immat"
+            placeholder="AA-123-BB"
+            class="w-56 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+        </label>
+      </div>
+
+      <!-- Occupants -->
+      <div class="rounded-xl border border-line bg-white p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold text-ink">Voyageurs accompagnants</h2>
+            <p class="text-xs text-soft">Vous êtes le référent de la réservation (RG-04).</p>
+          </div>
+          <button
+            type="button"
+            (click)="addOccupant()"
+            class="rounded-lg bg-accent-soft px-3 py-1 text-xs font-semibold text-accent"
+          >
+            + Ajouter
+          </button>
+        </div>
+
+        @if (occupants.length === 0) {
+          <p class="text-xs text-amber-700">
+            Ajoutez au moins un occupant pour pouvoir envoyer la demande.
+          </p>
+        }
+
+        <div class="space-y-3" formArrayName="occupants">
+          @for (occ of occupants.controls; track $index; let i = $index) {
+            <div
+              [formGroupName]="$index"
+              class="flex flex-wrap items-center gap-2 rounded-lg border border-line p-3"
+            >
+              <input
+                formControlName="firstname"
+                placeholder="Prénom"
+                class="min-w-28 flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <input
+                formControlName="name"
+                placeholder="Nom"
+                class="min-w-28 flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <input
+                formControlName="age"
+                type="number"
+                min="0"
+                placeholder="Âge"
+                class="w-24 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <button type="button" (click)="removeOccupant(i)" class="text-xs text-red-600">
+                Retirer
+              </button>
+              <p class="w-full text-[10px] text-soft">Âge requis pour les FunPass (RG-05).</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (error()) {
+        <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ error() }}</p>
+      }
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          (click)="save(false)"
+          [disabled]="loading()"
+          class="rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-accent"
+        >
+          💾 Enregistrer (finir plus tard)
+        </button>
+        <button
+          type="button"
+          (click)="save(true)"
+          [disabled]="!readyToSend || loading()"
+          class="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+        >
+          {{ loading() ? 'Envoi…' : '📤 Envoyer au propriétaire' }}
+        </button>
+      </div>
+      @if (!readyToSend) {
+        <p class="text-xs text-soft">
+          ℹ️ « Envoyer » nécessite une plaque et au moins un occupant. Sinon, enregistrez et revenez
+          plus tard.
+        </p>
+      }
+    </form>
+  } @else {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+</div>
