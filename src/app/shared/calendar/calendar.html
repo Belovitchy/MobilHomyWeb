@@ -1,0 +1,86 @@
+<div class="calendar">
+  <header class="calendar-header">
+    <button
+      type="button"
+      class="month-nav"
+      aria-label="Mois précédent"
+      title="Mois précédent"
+      (click)="previousMonth()"
+    >
+      −
+    </button>
+
+    <h2>{{ monthName() }}</h2>
+
+    <button
+      type="button"
+      class="month-nav"
+      aria-label="Mois suivant"
+      title="Mois suivant"
+      (click)="nextMonth()"
+    >
+      +
+    </button>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        @for (weekday of weekdays; track weekday) {
+          <th scope="col">{{ weekday }}</th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (week of weeks(); track $index) {
+        <tr>
+          @for (day of week; track $index) {
+            <td
+              [class.empty]="day === null"
+              [class.booked]="day !== null && isBooked(day)"
+              [class.today]="day !== null && isToday(day)"
+              [attr.data-date]="day !== null ? dateForDay(day) : null"
+              [title]="
+                day === null
+                  ? ''
+                  : 'Matin : ' +
+                    (isMorningBooked(day) ? 'réservé' : 'libre') +
+                    ' — Après-midi : ' +
+                    (isAfternoonBooked(day) ? 'réservé' : 'libre')
+              "
+            >
+              @if (day !== null) {
+                <div class="day-number">{{ day }}</div>
+
+                <div class="day-indicators">
+                  <!-- M : matin -->
+                  <span
+                    class="indicator morning"
+                    [class.booked]="isMorningBooked(day)"
+                    [class.free]="!isMorningBooked(day)"
+                    title="Matin"
+                  ></span>
+
+                  <!-- A : après-midi -->
+                  <span
+                    class="indicator afternoon"
+                    [class.booked]="isAfternoonBooked(day)"
+                    [class.free]="!isAfternoonBooked(day)"
+                    title="Après-midi"
+                  ></span>
+                </div>
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="calendar-legend">
+    <span><i class="legend-today"></i>Aujourd'hui</span>
+    <span><i class="legend-booked"></i>Réservé</span>
+    <span><i class="legend-free"></i>Libre</span>
+  </div>
+</div>

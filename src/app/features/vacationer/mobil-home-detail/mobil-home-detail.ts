@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment.development';
 import { MobilHome } from '../../../core/models/mobilhome.models';
 import { MobilHomeService } from '../../../core/services/mobil-home.service';
+import { CalendarComponent } from '../../../shared/calendar/calendar';
 
 interface CalendarDay {
   date: string; // yyyy-MM-dd
@@ -12,7 +13,7 @@ interface CalendarDay {
 
 @Component({
   selector: 'app-mobil-home-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, CalendarComponent],
   templateUrl: './mobil-home-detail.html',
 })
 export class MobilHomeDetail implements OnChanges {
@@ -24,6 +25,7 @@ export class MobilHomeDetail implements OnChanges {
   readonly home = signal<MobilHome | null>(null);
   readonly error = signal(false);
   readonly mainImageIndex = signal(0);
+  readonly currentYear = new Date().getFullYear();
 
   // Sélection de dates dans la carte de réservation
   startDate = '';
