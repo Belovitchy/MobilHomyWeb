@@ -23,12 +23,13 @@ export class ReservationService {
     return this.http.get<Reservation>(`${this.api}/${id}`);
   }
 
-  /**
-   * Met à jour immat + occupants d'une résa PENDING.
-   * Le back passe la résa en COMPLETED quand tout est renseigné.
-   * ⚠️ Adapte la route/verbe si ton controller diffère (PATCH, /complete...).
-   */
+  /** 💾 Enregistrer (finir plus tard) — statut inchangé, reste PENDING */
   update(id: number, payload: ReservationUpdate): Observable<Reservation> {
     return this.http.put<Reservation>(`${this.api}/${id}`, payload);
+  }
+
+  /** 📤 Envoyer au propriétaire — le back passe en COMPLETED si complet, sinon 400 */
+  submit(id: number, payload: ReservationUpdate): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.api}/${id}/submit`, payload);
   }
 }

@@ -23,6 +23,7 @@
             formControlName="immat"
             placeholder="AA-123-BB"
             class="w-56 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+            [class]="inputClasses(isInvalid('immat'))"
           />
         </label>
       </div>
@@ -59,11 +60,13 @@
                 formControlName="firstname"
                 placeholder="Prénom"
                 class="min-w-28 flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+                [class]="inputClasses(isOccupantInvalid($index, 'firstname'))"
               />
               <input
                 formControlName="name"
                 placeholder="Nom"
                 class="min-w-28 flex-1 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+                [class]="inputClasses(isOccupantInvalid($index, 'name'))"
               />
               <input
                 formControlName="age"
@@ -71,6 +74,7 @@
                 min="0"
                 placeholder="Âge"
                 class="w-24 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+                [class]="inputClasses(isOccupantInvalid($index, 'age'))"
               />
               <button type="button" (click)="removeOccupant(i)" class="text-xs text-red-600">
                 Retirer

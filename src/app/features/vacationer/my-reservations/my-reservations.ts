@@ -56,6 +56,7 @@ export class MyReservations implements OnInit {
     const gaps: string[] = [];
     if (!res.immat?.trim()) gaps.push("la plaque d'immatriculation");
     if (!res.occupants?.length) gaps.push('au moins un occupant');
+    if (res.status === 'PENDING') gaps.push('la demande doit être envoyée au propriétaire');
     return gaps;
   }
 
