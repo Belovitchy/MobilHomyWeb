@@ -2,22 +2,34 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MyReservation, ReservationPayload } from '../models/vacationer.models';
+import { Reservation, ReservationPayload, ReservationUpdate } from '../models/reservation.models';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
   private readonly http = inject(HttpClient);
-  private readonly api = `${environment.apiUrl}/reservations`;
+  private authService = inject(AuthService);
+  private readonly api = `${environment.apiUrl}/vacationer/reservations`;
 
-  create(payload: ReservationPayload): Observable<MyReservation> {
-    return this.http.post<MyReservation>(this.api, payload);
+  create(payload: ReservationPayload): Observable<Reservation> {
+    return this.http.post<Reservation>(this.api, payload);
   }
 
-  mine(): Observable<MyReservation[]> {
-    return this.http.get<MyReservation[]>(`${this.api}/mine`);
+  mine(): Observable<Reservation[]> {
+    return this.http.get<Reservation[]>(`${this.api}/mine`);
   }
 
-  signContract(contractId: number): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/contracts/${contractId}/sign`, {});
+  getById(id: number): Observable<Reservation> {
+    return this.http.get<Reservation>(`${this.api}/${id}`);
+  }
+
+  /** 💾 Enregistrer (finir plus tard) — statut inchangé, reste PENDING */
+  update(id: number, payload: ReservationUpdate): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.api}/${id}`, payload);
+  }
+
+  /** 📤 Envoyer au propriétaire — le back passe en COMPLETED si complet, sinon 400 */
+  submit(id: number, payload: ReservationUpdate): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.api}/${id}/submit`, payload);
   }
 }

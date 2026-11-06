@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
 })
 export class Login {
@@ -15,6 +15,7 @@ export class Login {
 
   readonly loading = signal(false);
   readonly error = signal('');
+  readonly registered = inject(ActivatedRoute).snapshot.queryParams['registered'] === '1';
 
   readonly form = this.fb.nonNullable.group({
     login: ['', [Validators.required, Validators.email]],
