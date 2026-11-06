@@ -2,10 +2,12 @@ import { Routes } from '@angular/router';
 import { roleGuard } from './core/guards/auth.guards';
 import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
+import { AccountLayoutComponent } from './features/vacationer/account-layout/account-layout';
 import { CompleteReservation } from './features/vacationer/complete-reservation/complete-reservation';
 import { MobilHomeDetail } from './features/vacationer/mobil-home-detail/mobil-home-detail';
 import { MobilHomeList } from './features/vacationer/mobil-home-list/mobil-home-list';
 import { MyReservations } from './features/vacationer/my-reservations/my-reservations';
+import { ProfileComponent } from './features/vacationer/profile/profile';
 import { ReservationForm } from './features/vacationer/reservation-form/reservation-form';
 
 export const routes: Routes = [
@@ -22,14 +24,15 @@ export const routes: Routes = [
     canActivate: [roleGuard('VACATIONER')], // VACATIONER
   },
   {
-    path: 'mon-compte/reservations/:id/completer',
-    component: CompleteReservation,
+    path: 'mon-compte-vacationer',
     canActivate: [roleGuard('VACATIONER')],
-  },
-  {
-    path: 'mon-compte/reservations',
-    canActivate: [roleGuard('VACATIONER')],
-    component: MyReservations,
+    component: AccountLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'reservations', pathMatch: 'full' },
+      { path: 'reservations', component: MyReservations },
+      { path: 'reservations/:id/completer', component: CompleteReservation },
+      { path: 'profil', component: ProfileComponent },
+    ],
   },
 
   { path: 'login', component: Login },

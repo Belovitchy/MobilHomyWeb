@@ -1,0 +1,55 @@
+<div class="rounded-xl border border-line bg-white p-6">
+  <h1 class="text-lg font-bold text-ink">Mon profil</h1>
+  <p class="mt-1 text-sm text-soft">
+    Ces informations servent à vous contacter et à pré-remplir vos réservations.
+  </p>
+
+  @if (saved()) {
+    <p class="mt-4 rounded-lg bg-accent-soft px-4 py-2 text-sm text-accent">
+      ✅ Profil mis à jour.
+    </p>
+  }
+  @if (error()) {
+    <p class="mt-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">{{ error() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="mt-6 max-w-md space-y-4">
+    <div class="grid grid-cols-2 gap-3">
+      <label>
+        <span class="mb-1 block text-xs text-soft">Prénom</span>
+        <input formControlName="firstname" [class]="inputClasses(isInvalid('firstname'))" />
+      </label>
+      <label>
+        <span class="mb-1 block text-xs text-soft">Nom</span>
+        <input formControlName="name" [class]="inputClasses(isInvalid('name'))" />
+      </label>
+    </div>
+
+    <label class="block">
+      <span class="mb-1 block text-xs text-soft">
+        Email (identifiant) — <span class="text-soft/70">non modifiable</span>
+      </span>
+      <input
+        formControlName="email"
+        class="w-full cursor-not-allowed rounded-lg border border-line bg-gray-50 px-3 py-2 text-sm text-soft"
+      />
+    </label>
+
+    <label class="block">
+      <span class="mb-1 block text-xs text-soft">Téléphone</span>
+      <input
+        formControlName="phone"
+        placeholder="06 12 34 56 78"
+        class="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+      />
+    </label>
+
+    <button
+      type="submit"
+      [disabled]="loading()"
+      class="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+    >
+      {{ loading() ? 'Enregistrement…' : 'Enregistrer' }}
+    </button>
+  </form>
+</div>

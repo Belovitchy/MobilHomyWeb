@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment.development';
 import { MobilHome } from '../../../core/models/mobilhome.models';
 import { MobilHomeService } from '../../../core/services/mobil-home.service';
-import { CalendarComponent } from '../../../shared/calendar/calendar';
+import { CalendarComponent } from '../../../shared/components/calendar/calendar';
 
 interface CalendarDay {
   date: string; // yyyy-MM-dd
