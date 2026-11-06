@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CurrentUser, LoginResponse } from '../models/auth.models';
+import { CurrentUser, LoginResponse, RegisterPayload } from '../models/auth.models';
 
 const TOKEN_KEY = 'mobilhomy_token';
 const USER_KEY = 'mobilhomy_user';
@@ -65,5 +65,10 @@ export class AuthService {
     } catch {
       return true;
     }
+  }
+
+  /** Inscription vacancier — le back force authority=VACATIONER */
+  register(payload: RegisterPayload): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/register`, payload);
   }
 }

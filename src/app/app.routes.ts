@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { roleGuard } from './core/guards/auth.guards';
 import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
+import { Register } from './features/auth/register/register';
 import { AccountLayoutComponent } from './features/vacationer/account-layout/account-layout';
 import { CompleteReservation } from './features/vacationer/complete-reservation/complete-reservation';
 import { MobilHomeDetail } from './features/vacationer/mobil-home-detail/mobil-home-detail';
@@ -13,6 +14,7 @@ import { ReservationForm } from './features/vacationer/reservation-form/reservat
 export const routes: Routes = [
   { path: '', redirectTo: 'accueil', pathMatch: 'full' },
   { path: 'login', component: Login },
+  { path: 'register', component: Register },
   { path: 'forbidden', component: Forbidden },
 
   { path: '', component: MobilHomeList }, // public

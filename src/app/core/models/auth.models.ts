@@ -14,3 +14,11 @@ export interface CurrentUser {
   name: string;
   authority: Authority;
 }
+
+export interface RegisterPayload {
+  firstname: string;
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+}
