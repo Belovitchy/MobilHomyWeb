@@ -61,6 +61,6 @@ export class MyReservations implements OnInit {
   }
 
   complete(res: Reservation): void {
-    this.router.navigate(['/mon-compte/reservations', res.id, 'completer']);
+    this.router.navigate(['/mon-compte-vacationer/reservations', res.id, 'completer']);
   }
 }

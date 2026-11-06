@@ -1,0 +1,32 @@
+<nav
+  class="flex shrink-0 gap-1 overflow-x-auto rounded-xl border border-line bg-white p-2 lg:w-48 lg:flex-col lg:overflow-visible"
+>
+  @for (section of sections(); track section.label) {
+    <span
+      class="mt-2 block px-2 pt-1 text-[10px] font-semibold tracking-wide text-soft uppercase max-lg:hidden"
+    >
+      {{ section.label }}
+    </span>
+
+    @for (item of section.items; track item.label) {
+      @if (item.link) {
+        <a
+          [routerLink]="item.link"
+          routerLinkActive="bg-accent-soft text-accent font-semibold"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          class="rounded-lg px-3 py-2 text-sm whitespace-nowrap text-soft transition hover:text-accent"
+        >
+          {{ item.label }}
+        </a>
+      } @else if (item.action === 'logout') {
+        <button
+          type="button"
+          (click)="logout()"
+          class="rounded-lg px-3 py-2 text-left text-sm whitespace-nowrap text-soft transition hover:text-red-600"
+        >
+          {{ item.label }}
+        </button>
+      }
+    }
+  }
+</nav>
