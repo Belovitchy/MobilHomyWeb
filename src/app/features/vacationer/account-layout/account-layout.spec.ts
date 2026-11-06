@@ -1,4 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { AccountLayoutComponent } from './account-layout';
 
 describe('AccountLayout', () => {
@@ -8,6 +10,7 @@ describe('AccountLayout', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AccountLayoutComponent],
+      providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AccountLayoutComponent);
