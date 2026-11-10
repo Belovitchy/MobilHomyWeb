@@ -16,11 +16,15 @@ export interface PasswordUpdate {
   newPassword: string;
 }
 
-export interface VacationerAccount {
+/** Profil commun à tous les rôles (GET /api/{role}/account). */
+export interface Account {
   id: number;
   name: string;
   firstname: string;
   email: string;
-  phone: string;
+  phone: string | null;
+}
+
+export interface VacationerAccount extends Account {
   reservations: Reservation[];
 }

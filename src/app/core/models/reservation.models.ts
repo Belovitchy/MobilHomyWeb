@@ -44,3 +44,17 @@ export interface ReservationPayload {
   immat: string;
   occupants: OccupantPayload[];
 }
+
+export interface OwnerReservation {
+  id: number;
+  mobil_home_id: number;
+  mobil_home_title?: string;
+  start_date: string; // yyyy-MM-dd (arrivée)
+  end_date: string; // yyyy-MM-dd (départ, nuit non incluse)
+  status: ReservationStatus;
+  occupant_name?: string;
+  occupants_count?: number;
+  total_price?: number;
+  created_at?: string;
+  occupants?: Occupant[];
+}

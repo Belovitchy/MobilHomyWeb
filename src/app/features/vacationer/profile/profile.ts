@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { VacationerAccount } from '../../../core/models/account.models';
+import { Account } from '../../../core/models/account.models';
+import { AccountService } from '../../../core/services/account.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { VacationerService } from '../../../core/services/vacationer.service';
 
 @Component({
   selector: 'app-profile',
@@ -11,12 +11,13 @@ import { VacationerService } from '../../../core/services/vacationer.service';
   templateUrl: './profile.html',
 })
 export class ProfileComponent implements OnInit {
-  private readonly api = inject(VacationerService);
+  /** Partagé par le vacancier et le propriétaire : AccountService choisit la route selon le rôle. */
+  private readonly api = inject(AccountService);
   private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
-  readonly account = signal<VacationerAccount | null>(null);
+  readonly account = signal<Account | null>(null);
   readonly loading = signal(false);
   readonly saved = signal('');
   readonly error = signal('');

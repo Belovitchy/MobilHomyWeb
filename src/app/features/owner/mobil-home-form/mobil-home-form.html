@@ -1,0 +1,237 @@
+<div class="mx-auto max-w-3xl space-y-6">
+  <div>
+    <a routerLink="/owner/mobil-homes" class="text-sm text-soft hover:text-accent"
+      >← Retour aux mobil-homes</a
+    >
+    <h1 class="mt-2 text-2xl font-semibold text-ink">
+      {{ id() === null ? 'Nouveau mobil-home' : 'Modifier le mobil-home' }}
+    </h1>
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+
+  @if (!loading()) {
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="space-y-5 rounded-xl border border-line bg-white p-6"
+    >
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label class="mb-1 block text-sm font-medium text-ink" for="title">Titre *</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            [class]="inputClasses(form.controls.title)"
+            placeholder="Mobil-home Les Pins — 3 chambres"
+          />
+          @if (isInvalid(form.controls.title)) {
+            <p class="mt-1 text-xs text-red-500">Le titre est obligatoire.</p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-1 block text-sm font-medium text-ink" for="description"
+            >Description</label
+          >
+          <textarea
+            id="description"
+            rows="3"
+            formControlName="description"
+            [class]="inputClasses(form.controls.description)"
+            placeholder="Environnement, équipements, atouts…"
+          ></textarea>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="location">Camping *</label>
+          <input
+            id="location"
+            type="text"
+            formControlName="location"
+            [class]="inputClasses(form.controls.location)"
+            placeholder="La Réserve"
+          />
+          @if (isInvalid(form.controls.location)) {
+            <p class="mt-1 text-xs text-red-500">Le nom du camping est obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="manager_id">Gérant</label>
+          <select
+            id="manager_id"
+            formControlName="manager_id"
+            [class]="inputClasses(form.controls.manager_id)"
+          >
+            <option [ngValue]="null">Aucun gérant</option>
+            @for (m of managers(); track m.id) {
+              <option [ngValue]="m.id">{{ m.firstname }} {{ m.name }}</option>
+            }
+          </select>
+          @if (managers().length === 0) {
+            <p class="mt-1 text-xs text-soft">
+              Aucun gérant pour l'instant —
+              <a routerLink="/owner/managers" class="text-accent hover:underline">en ajouter un</a>.
+            </p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-1 block text-sm font-medium text-ink" for="address">Adresse *</label>
+          <input
+            id="address"
+            type="text"
+            formControlName="address"
+            [class]="inputClasses(form.controls.address)"
+            placeholder="12 allée des Chênes, Camping Les Sables"
+          />
+          @if (isInvalid(form.controls.address)) {
+            <p class="mt-1 text-xs text-red-500">L'adresse est obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="postal_code"
+            >Code postal *</label
+          >
+          <input
+            id="postal_code"
+            type="text"
+            formControlName="postal_code"
+            [class]="inputClasses(form.controls.postal_code)"
+            placeholder="44380"
+          />
+          @if (isInvalid(form.controls.postal_code)) {
+            <p class="mt-1 text-xs text-red-500">5 chiffres attendus.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="department"
+            >Département *</label
+          >
+          <input
+            id="department"
+            type="text"
+            maxlength="3"
+            formControlName="department"
+            [class]="inputClasses(form.controls.department)"
+            placeholder="44"
+          />
+          @if (isInvalid(form.controls.department)) {
+            <p class="mt-1 text-xs text-red-500">Numéro de département (ex. 44, 17, 2A).</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="capacity">Capacité *</label>
+          <input
+            id="capacity"
+            type="number"
+            min="1"
+            formControlName="capacity"
+            [class]="inputClasses(form.controls.capacity)"
+          />
+          @if (isInvalid(form.controls.capacity)) {
+            <p class="mt-1 text-xs text-red-500">Entre 1 et 16 personnes.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="price"
+            >Prix par nuit (€) *</label
+          >
+          <input
+            id="price"
+            type="number"
+            min="0"
+            step="0.01"
+            formControlName="price"
+            [class]="inputClasses(form.controls.price)"
+          />
+          @if (isInvalid(form.controls.price)) {
+            <p class="mt-1 text-xs text-red-500">Prix invalide.</p>
+          }
+        </div>
+      </div>
+
+      <div formArrayName="images">
+        <span class="mb-1 block text-sm font-medium text-ink">Photos</span>
+        @if (imageRows.length === 0) {
+          <p class="text-xs text-soft">Aucune photo pour l'instant.</p>
+        }
+        @for (row of imageRows.controls; track $index) {
+          <div class="mt-2 flex items-center gap-2">
+            @if (row.value) {
+              <img
+                [src]="imageSrc(row.value)"
+                alt=""
+                class="h-12 w-16 shrink-0 rounded border border-line object-cover"
+              />
+            }
+            <input
+              type="text"
+              [formControlName]="$index"
+              [class]="inputClasses(row)"
+              placeholder="/images/mh-1.webp ou https://…"
+            />
+            <button
+              type="button"
+              (click)="removeImage($index)"
+              class="shrink-0 rounded-lg border border-line px-3 py-2 text-xs text-soft hover:bg-surface"
+            >
+              Retirer
+            </button>
+          </div>
+          @if (isInvalid(row)) {
+            <p class="mt-1 text-xs text-red-500">URL vide — remplis-la ou retire la ligne.</p>
+          }
+        }
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <label
+            class="cursor-pointer rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/90"
+            [class.pointer-events-none]="uploading()"
+            [class.opacity-50]="uploading()"
+          >
+            {{ uploading() ? 'Envoi en cours…' : 'Téléverser des photos' }}
+            <input
+              type="file"
+              class="sr-only"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              [disabled]="uploading()"
+              (change)="onFilesSelected($event)"
+            />
+          </label>
+          <button
+            type="button"
+            (click)="addImage()"
+            class="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+          >
+            + Ajouter une URL
+          </button>
+        </div>
+        <p class="mt-1 text-xs text-soft">
+          JPEG, PNG ou WebP, 5 Mo maximum par photo. Pense à enregistrer le mobil-home pour
+          rattacher les photos.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 border-t border-line pt-4">
+        <a
+          routerLink="/owner/mobil-homes"
+          class="rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-surface"
+          >Annuler</a
+        >
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+        >
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -5,11 +5,15 @@
     >
     <nav class="flex items-center gap-4 text-sm">
       @if (auth.isAuthenticated()) {
+        @if (auth.currentUser()?.authority === 'OWNER') {
+          <a routerLink="/owner/dashboard" class="text-soft hover:text-accent">Tableau de bord</a>
+        } @else if (auth.currentUser()?.authority === 'VACATIONER') {
+          <a routerLink="/mon-compte-vacationer" class="text-soft hover:text-accent">Mon compte</a>
+        } @else if (auth.currentUser()?.authority === 'MANAGER') {
+          <a routerLink="/manager/dashboard" class="text-soft hover:text-accent">Tableau de bord</a>
+        }
         <span class="text-soft"
-          >{{ auth.currentUser()?.firstname }} · {{ auth.currentUser()?.authority }}</span
-        >
-        <a routerLink="/mon-compte-vacationer/reservations" class="text-soft hover:text-accent"
-          >Mes réservations</a
+          >{{ auth.currentUser()?.firstname }} · {{ auth.currentUser()?.name }}</span
         >
         <button (click)="logout()" class="text-soft hover:text-accent">Déconnexion</button>
       } @else {

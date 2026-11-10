@@ -59,6 +59,8 @@
                     class="indicator morning"
                     [class.booked]="isMorningBooked(day)"
                     [class.free]="!isMorningBooked(day)"
+                    [class.external]="isMorningExternal(day)"
+                    [class.pending]="isMorningPending(day)"
                     title="Matin"
                   ></span>
 
@@ -67,6 +69,8 @@
                     class="indicator afternoon"
                     [class.booked]="isAfternoonBooked(day)"
                     [class.free]="!isAfternoonBooked(day)"
+                    [class.external]="isAfternoonExternal(day)"
+                    [class.pending]="isAfternoonPending(day)"
                     title="Après-midi"
                   ></span>
                 </div>
@@ -82,5 +86,11 @@
     <span><i class="legend-today"></i>Aujourd'hui</span>
     <span><i class="legend-booked"></i>Réservé</span>
     <span><i class="legend-free"></i>Libre</span>
+    @if (hasPending()) {
+      <span><i class="legend-pending"></i>À traiter</span>
+    }
+    @if (hasExternal()) {
+      <span><i class="legend-external"></i>Réservé (iCal)</span>
+    }
   </div>
 </div>

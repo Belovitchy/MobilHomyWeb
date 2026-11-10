@@ -1,9 +1,16 @@
 import { Component, computed, input, signal } from '@angular/core';
 
-interface CalendarReservation {
+export interface CalendarReservation {
   startDate: string;
   endDate: string;
+  /** Optionnel : 'ICAL' = créneau importé d'une plateforme externe (affiché hachuré). */
+  source?: 'INTERNAL' | 'ICAL';
+  /** Optionnel : 'COMPLETED' = demande soumise, à traiter (affichée en orange). Absent = réservé. */
+  status?: string;
 }
+
+/** Statut « demande envoyée par le vacancier, à traiter par le propriétaire ». */
+const PENDING_STATUS = 'COMPLETED';
 
 @Component({
   selector: 'app-calendar',
@@ -107,24 +114,70 @@ export class CalendarComponent {
     return this.toIsoDate(new Date(this.displayedYear(), this.displayedMonth(), day));
   }
 
-  // Le matin est réservé si une réservation a commencé avant ce jour
-  // et se termine ce jour ou après.
-  isMorningBooked(day: number): boolean {
-    const date = this.dateForDay(day);
+  // Affiche la légende iCal seulement si au moins un créneau externe est présent
+  readonly hasExternal = computed(() => this.reservations().some((r) => r.source === 'ICAL'));
 
-    return this.reservations().some(
-      (reservation) => reservation.startDate < date && date <= reservation.endDate,
+  // Affiche la légende « à traiter » seulement si au moins une demande en attente est présente
+  readonly hasPending = computed(() => this.reservations().some((r) => this.isPending(r)));
+
+  private isPending(r: CalendarReservation): boolean {
+    return r.status === PENDING_STATUS;
+  }
+
+  /**
+   * Plusieurs créneaux peuvent tomber le même jour (vue « Tous » sur plusieurs mobil-homes) :
+   * on affiche le plus engageant — réservé > iCal > à traiter.
+   */
+  private priority(r: CalendarReservation): number {
+    if (r.source === 'ICAL') return 1;
+    return this.isPending(r) ? 2 : 0;
+  }
+
+  private pick(matches: CalendarReservation[]): CalendarReservation | undefined {
+    return matches.reduce<CalendarReservation | undefined>(
+      (best, r) => (!best || this.priority(r) < this.priority(best) ? r : best),
+      undefined,
     );
   }
 
-  // L'après-midi est réservé si une réservation commence ce jour
-  // ou avant et se termine après ce jour.
-  isAfternoonBooked(day: number): boolean {
+  // Réservation qui occupe le matin : commencée avant ce jour, se termine ce jour ou après.
+  private morningReservation(day: number): CalendarReservation | undefined {
     const date = this.dateForDay(day);
+    return this.pick(this.reservations().filter((r) => r.startDate < date && date <= r.endDate));
+  }
 
-    return this.reservations().some(
-      (reservation) => reservation.startDate <= date && date < reservation.endDate,
-    );
+  // Réservation qui occupe l'après-midi : commence ce jour ou avant, se termine après ce jour.
+  private afternoonReservation(day: number): CalendarReservation | undefined {
+    const date = this.dateForDay(day);
+    return this.pick(this.reservations().filter((r) => r.startDate <= date && date < r.endDate));
+  }
+
+  isMorningBooked(day: number): boolean {
+    return !!this.morningReservation(day);
+  }
+
+  isAfternoonBooked(day: number): boolean {
+    return !!this.afternoonReservation(day);
+  }
+
+  // Demi-journée occupée par un créneau importé (iCal)
+  isMorningExternal(day: number): boolean {
+    return this.morningReservation(day)?.source === 'ICAL';
+  }
+
+  isAfternoonExternal(day: number): boolean {
+    return this.afternoonReservation(day)?.source === 'ICAL';
+  }
+
+  // Demi-journée occupée par une demande à traiter (orange)
+  isMorningPending(day: number): boolean {
+    const r = this.morningReservation(day);
+    return !!r && this.isPending(r);
+  }
+
+  isAfternoonPending(day: number): boolean {
+    const r = this.afternoonReservation(day);
+    return !!r && this.isPending(r);
   }
 
   // Le jour est entièrement réservé si les deux demi-journées le sont

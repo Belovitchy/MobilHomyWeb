@@ -78,12 +78,6 @@ td.today {
   border-radius: 4px;
 }
 
-/* (Réservé pour la suite) créneaux sync iCal hachurés :
-td.external {
-  background: repeating-linear-gradient(45deg, #dadde2 0 3px, #eff1f3 3px 6px);
-  border-color: #d8dbe0;
-} */
-
 /* --- Contenu cellule --- */
 .day-number {
   font-size: 10px;
@@ -124,6 +118,17 @@ td.booked .day-number {
   background: #e8eaed;
 }
 
+/* Créneau importé d'une plateforme externe (iCal) : hachuré gris */
+.indicator.external {
+  background: repeating-linear-gradient(45deg, #9ca3af 0 3px, #d1d5db 3px 6px);
+}
+
+/* Demande soumise, à traiter par le propriétaire : orange (= amber-400 de la légende owner) */
+.indicator.pending {
+  background: #fbbf24;
+  color: #ffffff;
+}
+
 /* --- Légende --- */
 .calendar-legend {
   display: flex;
@@ -151,6 +156,16 @@ td.booked .day-number {
 .calendar-legend i.legend-booked {
   background: #2e6e5a; /* fond vert clair + bordure verte */
   border: 1px solid #2e6e5a;
+}
+
+.calendar-legend i.legend-pending {
+  background: #fbbf24;
+  border: 1px solid #fbbf24;
+}
+
+.calendar-legend i.legend-external {
+  background: repeating-linear-gradient(45deg, #9ca3af 0 3px, #d1d5db 3px 6px);
+  border: 1px solid #d8dbe0;
 }
 
 .calendar-legend i.legend-free {

@@ -3,6 +3,13 @@ import { roleGuard } from './core/guards/auth.guards';
 import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
+import { OwnerDashboard } from './features/owner/dashboard/dashboard';
+import { ManagerList } from './features/owner/manager-list/manager-list';
+import { MobilHomeForm } from './features/owner/mobil-home-form/mobil-home-form';
+import { OwnerCalendar } from './features/owner/owner-calendar/owner-calendar';
+import { OwnerLayout } from './features/owner/owner-layout/owner-layout';
+import { OwnerMobilHomeList } from './features/owner/owner-mobil-home-list/owner-mobil-home-list';
+import { RequestsList } from './features/owner/requests-list/requests-list';
 import { AccountLayoutComponent } from './features/vacationer/account-layout/account-layout';
 import { CompleteReservation } from './features/vacationer/complete-reservation/complete-reservation';
 import { MobilHomeDetail } from './features/vacationer/mobil-home-detail/mobil-home-detail';
@@ -34,6 +41,31 @@ export const routes: Routes = [
       { path: 'reservations', component: MyReservations },
       { path: 'reservations/:id/completer', component: CompleteReservation },
       { path: 'profil', component: ProfileComponent },
+    ],
+  },
+
+  {
+    path: 'owner',
+    component: OwnerLayout,
+    canActivate: [roleGuard('OWNER')], // adapte si ton roleGuard a une autre signature
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      { path: 'dashboard', component: OwnerDashboard, title: 'MobilHomy — Tableau de bord' },
+      { path: 'mobil-homes', component: OwnerMobilHomeList, title: 'MobilHomy — Mobil-homes' },
+      {
+        path: 'mobil-homes/nouveau',
+        component: MobilHomeForm,
+        title: 'MobilHomy — Nouveau mobil-home',
+      },
+      {
+        path: 'mobil-homes/:id',
+        component: MobilHomeForm,
+        title: 'MobilHomy — Modifier un mobil-home',
+      },
+      { path: 'requests', component: RequestsList, title: 'MobilHomy — Demandes' },
+      { path: 'managers', component: ManagerList, title: 'MobilHomy — Gérants' },
+      { path: 'calendar', component: OwnerCalendar, title: 'MobilHomy — Calendrier' },
+      { path: 'mon-compte', component: ProfileComponent, title: 'MobilHomy — Mon compte' },
     ],
   },
 

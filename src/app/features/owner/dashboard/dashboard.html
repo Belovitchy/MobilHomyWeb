@@ -1,0 +1,126 @@
+<!-- dashboard.html -->
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-ink">Tableau de bord</h1>
+    <p class="mt-1 text-sm text-soft">Vue d'ensemble de tes mobil-homes pour {{ year }}.</p>
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  } @else {
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Mobil-homes</p>
+        <p class="mt-1 text-3xl font-semibold text-ink">{{ homes().length }}</p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Demandes à traiter</p>
+        <p
+          class="mt-1 text-3xl font-semibold"
+          [class.text-accent]="pendingCount() > 0"
+          [class.text-ink]="pendingCount() === 0"
+        >
+          {{ pendingCount() }}
+        </p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Occupation 90 prochains jours</p>
+        <p class="mt-1 text-3xl font-semibold text-ink">{{ occ90() }}&nbsp;%</p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Nuitées réservées {{ year }}</p>
+        <p class="mt-1 text-3xl font-semibold text-ink">{{ nightsThisYear() }}</p>
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-line bg-white p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-semibold text-ink">Taux d'occupation par semaine</h2>
+          <p class="mt-0.5 text-xs text-soft">
+            Réservations validées · survole les points pour le détail.
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="selectAll()"
+          class="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+        >
+          Tout afficher
+        </button>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        @for (h of homes(); track h.id) {
+          <button
+            type="button"
+            (click)="toggleHome(h.id)"
+            [class]="chipClasses(selectedHomeIds().has(h.id))"
+          >
+            {{ h.title }}
+          </button>
+        }
+      </div>
+
+      @if (homes().length === 0) {
+        <p class="mt-6 text-sm text-soft">
+          Ajoute d'abord un mobil-home pour voir ta courbe d'occupation.
+        </p>
+      } @else {
+        <div class="mt-4">
+          <app-line-chart [labels]="weekLabels" [series]="chartSeries()" />
+        </div>
+        <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+          @for (s of chartSeries(); track s.label) {
+            <span class="inline-flex items-center gap-2 text-xs text-soft">
+              <span
+                class="inline-block h-2.5 w-2.5 rounded-full"
+                [style.background]="s.color"
+              ></span>
+              {{ s.label }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="rounded-xl border border-line bg-white p-5">
+      <h2 class="text-base font-semibold text-ink">Récapitulatif par mobil-home</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-line text-left text-xs uppercase tracking-wide text-soft">
+              <th class="pb-2 pr-4 font-medium">Mobil-home</th>
+              <th class="pb-2 pr-4 font-medium">Capacité</th>
+              <th class="pb-2 pr-4 font-medium">Nuitées {{ year }}</th>
+              <th class="pb-2 font-medium">Occupation 90 j</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of homeStats(); track s.home.id) {
+              <tr class="border-b border-line/60 last:border-0">
+                <td class="py-3 pr-4 font-medium text-ink">{{ s.home.title }}</td>
+                <td class="py-3 pr-4 text-soft">{{ s.home.capacity }} pers.</td>
+                <td class="py-3 pr-4 text-ink">{{ s.nights }}</td>
+                <td class="py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-2 w-32 overflow-hidden rounded-full bg-surface">
+                      <div class="h-full rounded-full bg-accent" [style.width.%]="s.occ90"></div>
+                    </div>
+                    <span class="text-xs text-soft">{{ s.occ90 }}&nbsp;%</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

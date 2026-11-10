@@ -1,0 +1,171 @@
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold text-ink">Gérants</h1>
+      <p class="mt-1 text-sm text-soft">Les personnes qui accueillent tes vacanciers sur place.</p>
+    </div>
+    @if (!formOpen()) {
+      <button
+        type="button"
+        (click)="startCreate()"
+        class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90"
+      >
+        + Nouveau gérant
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+
+  @if (formOpen()) {
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="space-y-4 rounded-xl border border-line bg-white p-6"
+    >
+      <h2 class="text-base font-semibold text-ink">
+        {{
+          isCreate()
+            ? 'Nouveau gérant'
+            : 'Modifier « ' + editing()!.firstname + ' ' + editing()!.name + ' »'
+        }}
+      </h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="first_name">Prénom *</label>
+          <input
+            id="first_name"
+            type="text"
+            formControlName="first_name"
+            [class]="inputClasses(form.controls.first_name)"
+          />
+          @if (isInvalid(form.controls.first_name)) {
+            <p class="mt-1 text-xs text-red-500">Prénom obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="last_name">Nom *</label>
+          <input
+            id="last_name"
+            type="text"
+            formControlName="last_name"
+            [class]="inputClasses(form.controls.last_name)"
+          />
+          @if (isInvalid(form.controls.last_name)) {
+            <p class="mt-1 text-xs text-red-500">Nom obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="email"
+            >Email (identifiant de connexion) *</label
+          >
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            [class]="inputClasses(form.controls.email)"
+          />
+          @if (isInvalid(form.controls.email)) {
+            <p class="mt-1 text-xs text-red-500">Email valide requis.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="phone">Téléphone</label>
+          <input
+            id="phone"
+            type="text"
+            formControlName="phone"
+            [class]="inputClasses(form.controls.phone)"
+            placeholder="06 12 34 56 78"
+          />
+          @if (isInvalid(form.controls.phone)) {
+            <p class="mt-1 text-xs text-red-500">Numéro invalide.</p>
+          }
+        </div>
+        @if (isCreate()) {
+          <div>
+            <label class="mb-1 block text-sm font-medium text-ink" for="password"
+              >Mot de passe provisoire</label
+            >
+            <input
+              id="password"
+              type="text"
+              formControlName="password"
+              [class]="inputClasses(form.controls.password)"
+              placeholder="Laisse vide si ton back le génère"
+            />
+          </div>
+        }
+      </div>
+      <div class="flex justify-end gap-3 border-t border-line pt-4">
+        <button
+          type="button"
+          (click)="cancel()"
+          class="rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-surface"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+        >
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+
+  <div class="overflow-x-auto rounded-xl border border-line bg-white">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-line text-left text-xs uppercase tracking-wide text-soft">
+          <th class="px-4 py-3 font-medium">Gérant</th>
+          <th class="px-4 py-3 font-medium">Email</th>
+          <th class="px-4 py-3 font-medium">Téléphone</th>
+          <th class="px-4 py-3 text-right font-medium">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (m of managers(); track m.id) {
+          <tr class="border-b border-line/60 last:border-0">
+            <td class="px-4 py-3 font-medium text-ink">{{ m.firstname }} {{ m.name }}</td>
+            <td class="px-4 py-3 text-soft">{{ m.email }}</td>
+            <td class="px-4 py-3 text-soft">{{ m.phone || '—' }}</td>
+            <td class="px-4 py-3 text-right">
+              <button
+                type="button"
+                (click)="startEdit(m)"
+                class="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+              >
+                Modifier
+              </button>
+              <button
+                type="button"
+                (click)="remove(m)"
+                [disabled]="busyId() === m.id"
+                class="ml-2 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                {{ busyId() === m.id ? '…' : 'Supprimer' }}
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="px-4 py-8 text-center text-sm text-soft">
+              Aucun gérant enregistré.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

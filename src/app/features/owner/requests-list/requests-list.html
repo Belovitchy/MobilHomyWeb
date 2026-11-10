@@ -1,0 +1,110 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-ink">Demandes de réservation</h1>
+    <p class="mt-1 text-sm text-soft">
+      Les demandes complètes envoyées par les vacanciers attendent ta décision.
+    </p>
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+
+  <div class="flex flex-wrap gap-2">
+    @for (t of tabs; track t.key) {
+      <button type="button" (click)="setFilter(t.key)" [class]="chipClasses(filter() === t.key)">
+        {{ t.label }} ({{ counts()[t.key] }})
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+
+  @if (!loading() && filtered().length === 0) {
+    <div
+      class="rounded-xl border border-dashed border-line bg-white p-10 text-center text-sm text-soft"
+    >
+      Aucune demande dans cette catégorie.
+    </div>
+  }
+
+  <div class="space-y-3">
+    @for (r of filtered(); track r.id) {
+      <article class="rounded-xl border border-line bg-white p-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="font-medium text-ink">
+                {{ r.mobil_home_title ?? 'Mobil-home #' + r.mobil_home_id }}
+              </h2>
+              <span
+                class="rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                [class]="badge(r).classes"
+                >{{ badge(r).label }}</span
+              >
+            </div>
+            <p class="mt-1 text-sm text-soft">
+              {{ r.start_date | date: 'dd/MM/yyyy' }} → {{ r.end_date | date: 'dd/MM/yyyy' }} ·
+              {{ nights(r) }} nuits
+              @if (r.occupant_name) {
+                · {{ r.occupant_name }}
+              }
+              @if (r.occupants_count) {
+                · {{ r.occupants_count }} pers.
+              }
+              @if (r.total_price != null) {
+                · {{ r.total_price | number: '1.2-2' }} €
+              }
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            @if (r.occupants?.length) {
+              <button
+                type="button"
+                (click)="toggle(r.id)"
+                class="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+              >
+                {{ expanded().has(r.id) ? 'Masquer occupants' : 'Voir occupants' }}
+              </button>
+            }
+            @if (r.status === 'COMPLETED') {
+              <button
+                type="button"
+                (click)="validate(r)"
+                [disabled]="busyId() === r.id"
+                class="rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+              >
+                Valider
+              </button>
+              <button
+                type="button"
+                (click)="reject(r)"
+                [disabled]="busyId() === r.id"
+                class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                Rejeter
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (expanded().has(r.id) && r.occupants?.length) {
+          <ul class="mt-3 space-y-1 border-t border-line pt-3 text-sm text-soft">
+            @for (o of r.occupants; track $index) {
+              <li>
+                • {{ o.firstname }} {{ o.name }}
+                @if (o.age) {
+                  — né(e) le {{ o.age | date: 'dd/MM/yyyy' }}
+                }
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    }
+  </div>
+</div>
