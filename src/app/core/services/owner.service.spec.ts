@@ -1,0 +1,83 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { environment } from '../../../environments/environment';
+import { OwnerService } from './owner.service';
+
+/** Vérifie le contrat HTTP avec OwnerController (méthodes, URL, paramètres, corps). */
+describe('OwnerService', () => {
+  const base = `${environment.apiUrl}/owner`;
+  let service: OwnerService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(OwnerService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('liste toutes les réservations sans filtre', () => {
+    service.reservations().subscribe();
+
+    const req = http.expectOne((r) => r.url === `${base}/reservations`);
+    expect(req.request.params.has('status')).toBe(false);
+    req.flush([]);
+  });
+
+  it('filtre les réservations par statut', () => {
+    service.reservations('COMPLETED').subscribe();
+
+    const req = http.expectOne((r) => r.url === `${base}/reservations`);
+    expect(req.request.params.get('status')).toBe('COMPLETED');
+    req.flush([]);
+  });
+
+  it('valide et refuse une demande en PUT sur son id', () => {
+    service.validate(7).subscribe();
+    service.reject(8).subscribe();
+
+    const validate = http.expectOne(`${base}/reservations/7/validate`);
+    const reject = http.expectOne(`${base}/reservations/8/reject`);
+    expect(validate.request.method).toBe('PUT');
+    expect(reject.request.method).toBe('PUT');
+    validate.flush({});
+    reject.flush({});
+  });
+
+  it('envoie le fichier en multipart (champ "file") pour l’upload de photo', () => {
+    const file = new File(['png'], 'oceane.png', { type: 'image/png' });
+    let path = '';
+
+    service.uploadImage(file).subscribe((res) => (path = res.path));
+
+    const req = http.expectOne(`${base}/images`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toBeInstanceOf(FormData);
+    expect((req.request.body as FormData).get('file')).toBe(file);
+    // Pas de Content-Type forcé : le navigateur doit ajouter la "boundary" du multipart.
+    expect(req.request.headers.has('Content-Type')).toBe(false);
+    req.flush({ path: '/images/abc.png' });
+
+    expect(path).toBe('/images/abc.png');
+  });
+
+  it('filtre le calendrier sur un mobil-home', () => {
+    service.calendarEvents(3).subscribe();
+
+    const req = http.expectOne((r) => r.url === `${base}/calendar`);
+    expect(req.request.params.get('mobilHomeId')).toBe('3');
+    req.flush([]);
+  });
+
+  it('supprime un mobil-home en DELETE', () => {
+    service.deleteMobilHome(10).subscribe();
+
+    const req = http.expectOne(`${base}/mobilhomes/10`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
+});

@@ -5,6 +5,8 @@ import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
+    // Garde-fou : repart d'un module de test vierge même si un fichier précédent l'a laissé instancié.
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideHttpClient(), provideRouter([])],

@@ -26,9 +26,22 @@ export class ManagerList {
     first_name: ['', [Validators.required, Validators.maxLength(60)]],
     last_name: ['', [Validators.required, Validators.maxLength(60)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.pattern(/^[+0-9 ().-]{6,20}$/)]],
+    // Mêmes règles que le back (OwnerManagerRequestDto) : téléphone obligatoire.
+    phone: ['', [Validators.required, Validators.pattern(/^[+0-9 ().-]{6,20}$/)]],
+    // Obligatoire (8 caractères min.) à la création uniquement — cf. setPasswordRules().
     password: [''],
   });
+
+  static readonly MIN_PASSWORD_LENGTH = 8;
+
+  /** Le mot de passe provisoire est exigé par le back à la création, ignoré en modification. */
+  private setPasswordRules(create: boolean): void {
+    const ctrl = this.form.controls.password;
+    ctrl.setValidators(
+      create ? [Validators.required, Validators.minLength(ManagerList.MIN_PASSWORD_LENGTH)] : [],
+    );
+    ctrl.updateValueAndValidity();
+  }
 
   /** Champ mot de passe affiché uniquement à la création. */
   readonly isCreate = computed(() => this.editing() === null);
@@ -54,6 +67,7 @@ export class ManagerList {
   startCreate(): void {
     this.editing.set(null);
     this.form.reset({ first_name: '', last_name: '', email: '', phone: '', password: '' });
+    this.setPasswordRules(true);
     this.formOpen.set(true);
   }
 
@@ -66,6 +80,7 @@ export class ManagerList {
       phone: m.phone ?? '',
       password: '',
     });
+    this.setPasswordRules(false);
     this.formOpen.set(true);
   }
 

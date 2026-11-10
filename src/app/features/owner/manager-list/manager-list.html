@@ -74,7 +74,7 @@
           }
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-ink" for="phone">Téléphone</label>
+          <label class="mb-1 block text-sm font-medium text-ink" for="phone">Téléphone *</label>
           <input
             id="phone"
             type="text"
@@ -89,15 +89,18 @@
         @if (isCreate()) {
           <div>
             <label class="mb-1 block text-sm font-medium text-ink" for="password"
-              >Mot de passe provisoire</label
+              >Mot de passe provisoire *</label
             >
             <input
               id="password"
               type="text"
               formControlName="password"
               [class]="inputClasses(form.controls.password)"
-              placeholder="Laisse vide si ton back le génère"
+              placeholder="8 caractères minimum"
             />
+            @if (isInvalid(form.controls.password)) {
+              <p class="mt-1 text-xs text-red-500">8 caractères minimum.</p>
+            }
           </div>
         }
       </div>

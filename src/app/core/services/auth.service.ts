@@ -11,11 +11,14 @@ const USER_KEY = 'mobilhomy_user';
 export class AuthService {
   private readonly http = inject(HttpClient);
 
+  // ⚠️ Déclaré AVANT userSignal : les champs sont initialisés dans l'ordre, et restoreUser()
+  // (appelé pour initialiser userSignal) en a besoin. Dans l'ordre inverse, `token` valait
+  // undefined → la session n'était jamais restaurée après un rechargement de page (F5).
+  readonly token = (): string | null => localStorage.getItem(TOKEN_KEY);
+
   private readonly userSignal = signal<CurrentUser | null>(this.restoreUser());
   readonly currentUser = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.userSignal() && !this.isTokenExpired());
-
-  readonly token = (): string | null => localStorage.getItem(TOKEN_KEY);
 
   login(login: string, password: string): Observable<LoginResponse> {
     return this.http
@@ -57,7 +60,7 @@ export class AuthService {
   }
 
   private isTokenExpired(): boolean {
-    const token = this.token();
+    const token = localStorage.getItem(TOKEN_KEY);
     if (!token) return true;
     try {
       const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
