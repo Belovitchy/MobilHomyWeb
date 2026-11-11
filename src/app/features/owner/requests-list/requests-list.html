@@ -1,9 +1,16 @@
 <div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-semibold text-ink">Demandes de réservation</h1>
-    <p class="mt-1 text-sm text-soft">
-      Les demandes complètes envoyées par les vacanciers attendent ta décision.
-    </p>
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold text-ink">Demandes de réservation</h1>
+      <p class="mt-1 text-sm text-soft">
+        Les demandes complètes envoyées par les vacanciers attendent ta décision.
+      </p>
+    </div>
+    <a
+      routerLink="/owner/requests/externe"
+      class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90"
+      >+ Réservation externe</a
+    >
   </div>
 
   @if (error()) {
@@ -46,6 +53,13 @@
                 [class]="badge(r).classes"
                 >{{ badge(r).label }}</span
               >
+              @if (isExternal(r)) {
+                <span
+                  class="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700"
+                  [attr.data-source]="r.source"
+                  >{{ sourceLabel(r) }}</span
+                >
+              }
             </div>
             <p class="mt-1 text-sm text-soft">
               {{ r.start_date | date: 'dd/MM/yyyy' }} → {{ r.end_date | date: 'dd/MM/yyyy' }} ·
@@ -53,8 +67,14 @@
               @if (r.occupant_name) {
                 · {{ r.occupant_name }}
               }
+              @if (r.guest_phone) {
+                · {{ r.guest_phone }}
+              }
               @if (r.occupants_count) {
                 · {{ r.occupants_count }} pers.
+              }
+              @if (r.immat) {
+                · Plaque <b class="font-medium text-ink">{{ r.immat }}</b>
               }
               @if (r.total_price != null) {
                 · {{ r.total_price | number: '1.2-2' }} €
@@ -69,6 +89,21 @@
                 class="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
               >
                 {{ expanded().has(r.id) ? 'Masquer occupants' : 'Voir occupants' }}
+              </button>
+            }
+            @if (isExternal(r) && r.status === 'VALIDATED') {
+              <a
+                [routerLink]="['/owner/requests', r.id, 'details']"
+                class="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+                >Client et occupants</a
+              >
+              <button
+                type="button"
+                (click)="cancelExternal(r)"
+                [disabled]="busyId() === r.id"
+                class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                Annuler
               </button>
             }
             @if (r.status === 'COMPLETED') {
@@ -92,13 +127,82 @@
           </div>
         </div>
 
+        <!-- Déclaration au camping : la plaque sert à déclarer le séjour, Siblu renvoie un n° de réservation -->
+        @if (r.status === 'VALIDATED') {
+          <div class="mt-3 border-t border-line pt-3 text-sm" [attr.data-siblu]="r.id">
+            @if (sibluEditId() === r.id) {
+              <div class="flex flex-wrap items-center gap-2">
+                <label class="text-soft" [for]="'siblu-' + r.id">N° Siblu</label>
+                <input
+                  [id]="'siblu-' + r.id"
+                  type="text"
+                  maxlength="30"
+                  [value]="sibluDraft()"
+                  (input)="sibluDraft.set($any($event.target).value)"
+                  (keydown.enter)="saveSiblu(r)"
+                  class="w-48 rounded-lg border border-line px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
+                  placeholder="SBLU-RES-10421"
+                />
+                <button
+                  type="button"
+                  (click)="saveSiblu(r)"
+                  [disabled]="busyId() === r.id"
+                  class="rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+                >
+                  Enregistrer
+                </button>
+                <button
+                  type="button"
+                  (click)="cancelSiblu()"
+                  class="rounded-lg border border-line px-3 py-1.5 text-xs text-soft hover:bg-surface"
+                >
+                  Annuler
+                </button>
+              </div>
+              @if (sibluError()) {
+                <p class="mt-1 text-xs text-red-500">{{ sibluError() }}</p>
+              }
+            } @else if (r.siblu_ref) {
+              <p class="text-soft">
+                Déclaré au camping · N° Siblu <b class="font-medium text-ink">{{ r.siblu_ref }}</b>
+                <button
+                  type="button"
+                  (click)="startSiblu(r)"
+                  class="ml-2 text-xs font-medium text-accent hover:underline"
+                >
+                  Modifier
+                </button>
+              </p>
+            } @else {
+              <div class="flex flex-wrap items-center gap-2">
+                <span
+                  class="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700"
+                  >Déclaration camping à faire</span
+                >
+                @if (isExternal(r) && missingForDeclaration(r).length) {
+                  <span class="text-xs text-amber-700">
+                    — à compléter d'abord : {{ missingForDeclaration(r).join(', ') }}
+                  </span>
+                }
+                <button
+                  type="button"
+                  (click)="startSiblu(r)"
+                  class="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+                >
+                  Saisir le n° Siblu
+                </button>
+              </div>
+            }
+          </div>
+        }
+
         @if (expanded().has(r.id) && r.occupants?.length) {
           <ul class="mt-3 space-y-1 border-t border-line pt-3 text-sm text-soft">
             @for (o of r.occupants; track $index) {
               <li>
                 • {{ o.firstname }} {{ o.name }}
                 @if (o.age) {
-                  — né(e) le {{ o.age | date: 'dd/MM/yyyy' }}
+                  — {{ o.age }} ans
                 }
               </li>
             }

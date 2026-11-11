@@ -1,6 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { OwnerReservation } from '../../../core/models/reservation.models';
+import { RouterLink } from '@angular/router';
+import { OwnerReservation, SOURCE_LABELS } from '../../../core/models/reservation.models';
 import { OwnerService } from '../../../core/services/owner.service';
 
 type Tab = 'COMPLETED' | 'VALIDATED' | 'PENDING' | 'ARCHIVED';
@@ -8,7 +9,7 @@ type Tab = 'COMPLETED' | 'VALIDATED' | 'PENDING' | 'ARCHIVED';
 @Component({
   selector: 'app-owner-requests',
   standalone: true,
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './requests-list.html',
 })
@@ -20,6 +21,13 @@ export class RequestsList {
   readonly error = signal('');
   readonly busyId = signal<number | null>(null);
   readonly expanded = signal<Set<number>>(new Set());
+
+  /** Saisie du n° Siblu : id de la réservation en cours d'édition et valeur tapée. */
+  readonly sibluEditId = signal<number | null>(null);
+  readonly sibluDraft = signal('');
+  readonly sibluError = signal('');
+  /** Même règle que le back (SibluRefRequestDto). */
+  static readonly SIBLU_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 /-]{0,29}$/;
 
   readonly tabs: { key: Tab; label: string }[] = [
     { key: 'COMPLETED', label: 'À traiter' },
@@ -101,6 +109,80 @@ export class RequestsList {
       error: () => {
         this.busyId.set(null);
         this.error.set('Rejet impossible — réessaie.');
+      },
+    });
+  }
+
+  // ----- Réservations externes (Booking, Airbnb…) -----
+
+  /** Réservation prise hors MobilHomy : le propriétaire en saisit et modifie lui-même les informations. */
+  isExternal(r: OwnerReservation): boolean {
+    return !!r.source && r.source !== 'MOBILHOMY';
+  }
+
+  sourceLabel(r: OwnerReservation): string {
+    return SOURCE_LABELS[r.source ?? 'MOBILHOMY'];
+  }
+
+  /** Ce qui manque pour déclarer le séjour au camping. */
+  missingForDeclaration(r: OwnerReservation): string[] {
+    const gaps: string[] = [];
+    if (!r.immat) gaps.push('plaque');
+    if (!r.occupants?.length) gaps.push('occupants');
+    return gaps;
+  }
+
+  cancelExternal(r: OwnerReservation): void {
+    if (!confirm(`Annuler la réservation ${this.sourceLabel(r)} de ${r.occupant_name ?? 'ce client'} ?`)) return;
+    this.busyId.set(r.id);
+    this.owner.cancelExternalReservation(r.id).subscribe({
+      next: () => {
+        this.busyId.set(null);
+        this.load();
+      },
+      error: () => {
+        this.busyId.set(null);
+        this.error.set('Annulation impossible — réessaie.');
+      },
+    });
+  }
+
+  // ----- N° Siblu (déclaration au camping) -----
+
+  /** Séjour validé dont la déclaration au camping reste à faire. */
+  needsSiblu(r: OwnerReservation): boolean {
+    return r.status === 'VALIDATED' && !r.siblu_ref;
+  }
+
+  startSiblu(r: OwnerReservation): void {
+    this.sibluEditId.set(r.id);
+    this.sibluDraft.set(r.siblu_ref ?? '');
+    this.sibluError.set('');
+  }
+
+  cancelSiblu(): void {
+    this.sibluEditId.set(null);
+    this.sibluError.set('');
+  }
+
+  saveSiblu(r: OwnerReservation): void {
+    const value = this.sibluDraft().trim();
+    if (!RequestsList.SIBLU_PATTERN.test(value)) {
+      this.sibluError.set('Numéro invalide : lettres, chiffres et tirets (30 caractères max).');
+      return;
+    }
+    this.busyId.set(r.id);
+    this.owner.updateSibluRef(r.id, value).subscribe({
+      next: (updated) => {
+        this.busyId.set(null);
+        this.sibluEditId.set(null);
+        this.reservations.update((list) =>
+          list.map((x) => (x.id === r.id ? { ...x, siblu_ref: updated.siblu_ref } : x)),
+        );
+      },
+      error: () => {
+        this.busyId.set(null);
+        this.sibluError.set('Enregistrement impossible — réessaie.');
       },
     });
   }

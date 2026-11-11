@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { OwnerLinksStore } from '../../../core/services/owner-links.store';
 import {
   SidebarSection,
   UserSidebarComponent,
@@ -13,9 +14,9 @@ import {
   templateUrl: './owner-layout.html',
 })
 export class OwnerLayout {
-  // ⚠️ Mêmes champs que ceux passés à <app-user-sidebar> dans account-layout.html :
-  // si ton composant attend d'autres inputs (titre, logo…), recopie-les ici.
-  readonly sections: SidebarSection[] = [
+  private readonly links = inject(OwnerLinksStore);
+
+  private readonly baseSections: SidebarSection[] = [
     {
       label: 'Pilotage',
       items: [
@@ -31,9 +32,25 @@ export class OwnerLayout {
         { label: 'Gérants', link: '/owner/managers' },
       ],
     },
+  ];
+
+  /** Menu = sections fixes + liens utiles du propriétaire (mis à jour dès qu'il en ajoute un). */
+  readonly sections = computed<SidebarSection[]>(() => [
+    ...this.baseSections,
+    {
+      label: 'Liens utiles',
+      items: [
+        ...this.links.links().map((l) => ({ label: l.name, href: l.url })),
+        { label: 'Gérer mes liens', link: '/owner/links' },
+      ],
+    },
     {
       label: 'Compte',
       items: [{ label: 'Mon profil', link: '/owner/mon-compte' }],
     },
-  ];
+  ]);
+
+  constructor() {
+    this.links.load();
+  }
 }

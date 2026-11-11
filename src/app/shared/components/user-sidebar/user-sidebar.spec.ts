@@ -24,4 +24,17 @@ describe('UserSidebar', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('ouvre les liens externes dans un nouvel onglet, sans accès à la page appelante', () => {
+    fixture.componentRef.setInput('sections', [
+      { label: 'Liens utiles', items: [{ label: 'Déclaration Siblu', href: 'https://www.siblu.fr/' }] },
+    ]);
+    fixture.detectChanges();
+
+    const a = (fixture.nativeElement as HTMLElement).querySelector('a[href="https://www.siblu.fr/"]');
+    expect(a).not.toBeNull();
+    expect(a!.getAttribute('target')).toBe('_blank');
+    expect(a!.getAttribute('rel')).toContain('noopener');
+    expect(a!.textContent).toContain('Déclaration Siblu');
+  });
 });

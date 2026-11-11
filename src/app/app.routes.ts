@@ -7,7 +7,9 @@ import { OwnerDashboard } from './features/owner/dashboard/dashboard';
 import { ManagerInvoices } from './features/manager/manager-invoices/manager-invoices';
 import { ManagerLayout } from './features/manager/manager-layout/manager-layout';
 import { ManagerReservations } from './features/manager/manager-reservations/manager-reservations';
+import { ExternalReservationForm } from './features/owner/external-reservation-form/external-reservation-form';
 import { ManagerList } from './features/owner/manager-list/manager-list';
+import { OwnerLinks } from './features/owner/owner-links/owner-links';
 import { MobilHomeForm } from './features/owner/mobil-home-form/mobil-home-form';
 import { OwnerCalendar } from './features/owner/owner-calendar/owner-calendar';
 import { OwnerLayout } from './features/owner/owner-layout/owner-layout';
@@ -66,6 +68,17 @@ export const routes: Routes = [
         title: 'MobilHomy — Modifier un mobil-home',
       },
       { path: 'requests', component: RequestsList, title: 'MobilHomy — Demandes' },
+      {
+        path: 'requests/externe',
+        component: ExternalReservationForm,
+        title: 'MobilHomy — Réservation externe',
+      },
+      {
+        path: 'requests/:id/details',
+        component: ExternalReservationForm,
+        title: 'MobilHomy — Client et occupants',
+      },
+      { path: 'links', component: OwnerLinks, title: 'MobilHomy — Mes liens' },
       { path: 'managers', component: ManagerList, title: 'MobilHomy — Gérants' },
       { path: 'calendar', component: OwnerCalendar, title: 'MobilHomy — Calendrier' },
       { path: 'mon-compte', component: ProfileComponent, title: 'MobilHomy — Mon compte' },

@@ -18,6 +18,17 @@
         >
           {{ item.label }}
         </a>
+      } @else if (item.href) {
+        <!-- Lien externe : nouvel onglet, sans accès à window.opener (noopener) ni referrer -->
+        <a
+          [href]="item.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          [title]="item.href"
+          class="flex items-center gap-1 rounded-lg px-3 py-2 text-sm whitespace-nowrap text-soft transition hover:text-accent"
+        >
+          {{ item.label }} <span aria-hidden="true" class="text-xs">↗</span>
+        </a>
       } @else if (item.action === 'logout') {
         <button
           type="button"

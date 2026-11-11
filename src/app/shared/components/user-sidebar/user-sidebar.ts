@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export interface SidebarItem {
   label: string;
   link?: string; // route interne
+  href?: string; // lien externe, ouvert dans un nouvel onglet
   action?: 'logout'; // ou action spéciale
   exact?: boolean; // pour routerLinkActive
 }

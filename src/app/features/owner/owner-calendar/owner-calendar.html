@@ -3,7 +3,7 @@
     <div>
       <h1 class="text-2xl font-semibold text-ink">Calendrier</h1>
       <p class="mt-1 text-sm text-soft">
-        Réservations de tes mobil-homes + séjours externes iCal (hachurés).
+        Disponibilités d'un mobil-home à la fois : choisis-le ci-dessous.
       </p>
     </div>
     <a
@@ -25,13 +25,6 @@
   }
 
   <div class="flex flex-wrap gap-2">
-    <button
-      type="button"
-      (click)="setFilter('all')"
-      [class]="chipClasses(filterHomeId() === 'all')"
-    >
-      Tous
-    </button>
     @for (h of homes(); track h.id) {
       <button
         type="button"

@@ -5,7 +5,13 @@ import { environment } from '../../../environments/environment';
 import { CalendarEvent } from '../models/calendar.models';
 import { ManagerInfo, ManagerInput } from '../models/manager.models';
 import { OwnerMobilHome, OwnerMobilHomeInput } from '../models/mobilhome.models';
-import { OwnerReservation, ReservationStatus } from '../models/reservation.models';
+import { OwnerLink, OwnerLinkInput } from '../models/link.models';
+import {
+  ExternalReservationInput,
+  OwnerReservation,
+  ReservationDetailsInput,
+  ReservationStatus,
+} from '../models/reservation.models';
 
 /**
  * Contrat API attendu côté back (voir cahier des charges / contrôleur OwnerController) :
@@ -20,6 +26,11 @@ import { OwnerReservation, ReservationStatus } from '../models/reservation.model
  * GET    /api/owner/reservations[?status=]         -> OwnerReservation[]
  * PUT    /api/owner/reservations/{id}/validate     -> OwnerReservation (VALIDATED)
  * PUT    /api/owner/reservations/{id}/reject       -> OwnerReservation (REJECTED)
+ * PUT    /api/owner/reservations/{id}/siblu-ref    -> OwnerReservation (n° Siblu, VALIDATED uniquement)
+ * POST   /api/owner/reservations                   -> OwnerReservation (réservation externe, VALIDATED d'office)
+ * PUT    /api/owner/reservations/{id}/details      -> OwnerReservation (client, plaque, occupants — externes uniquement)
+ * PUT    /api/owner/reservations/{id}/cancel       -> OwnerReservation (annulation d'une réservation externe)
+ * GET/POST/PUT/DELETE /api/owner/links[/{id}]      -> liens utiles du propriétaire
  * GET    /api/owner/calendar[?mobilHomeId=]        -> CalendarEvent[] (INTERNAL + ICAL)
  */
 @Injectable({ providedIn: 'root' })
@@ -85,6 +96,45 @@ export class OwnerService {
 
   reject(id: number): Observable<OwnerReservation> {
     return this.http.put<OwnerReservation>(`${this.base}/reservations/${id}/reject`, {});
+  }
+
+  /** Numéro de réservation Siblu obtenu après la déclaration du séjour au camping. */
+  updateSibluRef(id: number, sibluRef: string): Observable<OwnerReservation> {
+    return this.http.put<OwnerReservation>(`${this.base}/reservations/${id}/siblu-ref`, {
+      siblu_ref: sibluRef,
+    });
+  }
+
+  // ----- Réservations externes (Booking, Airbnb…) -----
+
+  createExternalReservation(input: ExternalReservationInput): Observable<OwnerReservation> {
+    return this.http.post<OwnerReservation>(`${this.base}/reservations`, input);
+  }
+
+  updateReservationDetails(id: number, input: ReservationDetailsInput): Observable<OwnerReservation> {
+    return this.http.put<OwnerReservation>(`${this.base}/reservations/${id}/details`, input);
+  }
+
+  cancelExternalReservation(id: number): Observable<OwnerReservation> {
+    return this.http.put<OwnerReservation>(`${this.base}/reservations/${id}/cancel`, {});
+  }
+
+  // ----- Liens utiles -----
+
+  links(): Observable<OwnerLink[]> {
+    return this.http.get<OwnerLink[]>(`${this.base}/links`);
+  }
+
+  createLink(input: OwnerLinkInput): Observable<OwnerLink> {
+    return this.http.post<OwnerLink>(`${this.base}/links`, input);
+  }
+
+  updateLink(id: number, input: OwnerLinkInput): Observable<OwnerLink> {
+    return this.http.put<OwnerLink>(`${this.base}/links/${id}`, input);
+  }
+
+  deleteLink(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/links/${id}`);
   }
 
   // ----- Calendrier -----

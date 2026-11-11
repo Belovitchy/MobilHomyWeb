@@ -25,14 +25,18 @@ export class OwnerCalendar {
   readonly events = signal<CalendarEvent[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
-  readonly filterHomeId = signal<number | 'all'>('all');
+  /**
+   * Un seul mobil-home affiché à la fois : superposer plusieurs mobil-homes sur une même grille
+   * rendait le calendrier illisible (un jour « réservé » sans savoir lequel). Le premier est sélectionné par défaut.
+   */
+  readonly filterHomeId = signal<number | null>(null);
 
   /** Export iCal — le back doit répondre en text/calendar (accessible sans header Authorization, ou avec ?token=). */
   readonly exportUrl = `${environment.apiOrigin}/api/owner/calendar.ics`;
 
   readonly filtered = computed(() => {
-    const f = this.filterHomeId();
-    return f === 'all' ? this.events() : this.events().filter((e) => e.mobil_home_id === f);
+    const id = this.filterHomeId();
+    return id === null ? [] : this.events().filter((e) => e.mobil_home_id === id);
   });
 
   /** Adaptation vers l'input [reservations] de <app-calendar>. */
@@ -50,6 +54,7 @@ export class OwnerCalendar {
       next: ({ homes, events }) => {
         this.homes.set(homes);
         this.events.set(events);
+        if (homes.length > 0) this.filterHomeId.set(homes[0].id);
         this.loading.set(false);
       },
       error: () => {
@@ -59,7 +64,7 @@ export class OwnerCalendar {
     });
   }
 
-  setFilter(v: number | 'all'): void {
+  setFilter(v: number): void {
     this.filterHomeId.set(v);
   }
 

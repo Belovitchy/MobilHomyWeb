@@ -48,6 +48,57 @@ describe('OwnerService', () => {
     reject.flush({});
   });
 
+  it('enregistre le n° Siblu en PUT /reservations/{id}/siblu-ref', () => {
+    service.updateSibluRef(4, 'SBLU-RES-10421').subscribe();
+
+    const req = http.expectOne(`${base}/reservations/4/siblu-ref`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ siblu_ref: 'SBLU-RES-10421' });
+    req.flush({});
+  });
+
+  it('réservations externes : POST création, PUT details, PUT cancel', () => {
+    const occupants = [{ firstname: 'Marie', name: 'Blanc', age: 40 }];
+    service
+      .createExternalReservation({
+        mobil_home_id: 10,
+        source: 'BOOKING',
+        guest_name: 'Marie Blanc',
+        guest_phone: '',
+        start_date: '2027-07-01',
+        end_date: '2027-07-08',
+        immat: 'MB-123-BK',
+        occupants,
+      })
+      .subscribe();
+    service.updateReservationDetails(5, { guest_name: 'Marie Blanc', guest_phone: '', immat: '', occupants }).subscribe();
+    service.cancelExternalReservation(5).subscribe();
+
+    const create = http.expectOne((r) => r.method === 'POST' && r.url === `${base}/reservations`);
+    expect(create.request.body.source).toBe('BOOKING');
+    const details = http.expectOne(`${base}/reservations/5/details`);
+    expect(details.request.method).toBe('PUT');
+    expect(details.request.body.occupants).toEqual(occupants);
+    const cancel = http.expectOne(`${base}/reservations/5/cancel`);
+    expect(cancel.request.method).toBe('PUT');
+    [create, details, cancel].forEach((r) => r.flush({}));
+  });
+
+  it('liens utiles : CRUD sur /links', () => {
+    const input = { name: 'Déclaration Siblu', url: 'https://www.siblu.fr/' };
+    service.links().subscribe();
+    service.createLink(input).subscribe();
+    service.updateLink(3, input).subscribe();
+    service.deleteLink(3).subscribe();
+
+    expect(http.expectOne((r) => r.method === 'GET' && r.url === `${base}/links`)).toBeTruthy();
+    const post = http.expectOne((r) => r.method === 'POST' && r.url === `${base}/links`);
+    expect(post.request.body).toEqual(input);
+    expect(http.expectOne((r) => r.method === 'PUT' && r.url === `${base}/links/3`)).toBeTruthy();
+    expect(http.expectOne((r) => r.method === 'DELETE' && r.url === `${base}/links/3`)).toBeTruthy();
+    http.match(() => true).forEach((r) => r.flush(null));
+  });
+
   it('envoie le fichier en multipart (champ "file") pour l’upload de photo', () => {
     const file = new File(['png'], 'oceane.png', { type: 'image/png' });
     let path = '';

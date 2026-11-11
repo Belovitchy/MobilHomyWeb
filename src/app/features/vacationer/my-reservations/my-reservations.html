@@ -59,6 +59,17 @@
 
         <!-- ── VALIDATED : détails complets (RG-07) ── -->
         @if (res.status === 'VALIDATED') {
+          <!-- N° de réservation camping : à présenter à l'accueil du camping -->
+          <p class="mt-3 rounded-lg border border-line px-3 py-2 text-xs text-ink" data-siblu>
+            @if (res.siblu_ref) {
+              N° de réservation camping (Siblu) : <b class="font-semibold">{{ res.siblu_ref }}</b>
+              <span class="text-soft">— à présenter à l'accueil avec votre plaque {{ res.immat }}.</span>
+            } @else {
+              <span class="text-soft"
+                >N° de réservation camping : en cours de déclaration par le propriétaire.</span
+              >
+            }
+          </p>
           <div class="mt-3 grid gap-3 border-t border-gray-100 pt-3 sm:grid-cols-2">
             <!-- Gérant -->
             @if (res.manager; as m) {
