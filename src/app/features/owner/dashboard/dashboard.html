@@ -14,7 +14,7 @@
   @if (loading()) {
     <p class="text-sm text-soft">Chargement…</p>
   } @else {
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       <div class="rounded-xl border border-line bg-white p-5">
         <p class="text-sm text-soft">Mobil-homes</p>
         <p class="mt-1 text-3xl font-semibold text-ink">{{ homes().length }}</p>
@@ -28,6 +28,17 @@
         >
           {{ pendingCount() }}
         </p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5" data-card="factures">
+        <p class="text-sm text-soft">Factures en attente</p>
+        <p
+          class="mt-1 text-3xl font-semibold"
+          [class.text-amber-600]="pendingInvoices().length > 0"
+          [class.text-ink]="pendingInvoices().length === 0"
+        >
+          {{ pendingInvoicesAmount() | number: '1.2-2' }}&nbsp;€
+        </p>
+        <p class="mt-1 text-xs text-soft">{{ pendingInvoices().length }} facture(s) à régler</p>
       </div>
       <div class="rounded-xl border border-line bg-white p-5">
         <p class="text-sm text-soft">Occupation 90 prochains jours</p>
@@ -89,6 +100,87 @@
         </div>
       }
     </div>
+
+    <div class="rounded-xl border border-line bg-white p-5" data-section="finances">
+      <div>
+        <h2 class="text-base font-semibold text-ink">Recettes et dépenses {{ year }}</h2>
+        <p class="mt-0.5 text-xs text-soft">
+          Recettes estimées sur les réservations validées (réparties par nuitée) · dépenses : factures
+          de tes gérants, hors annulées.
+        </p>
+      </div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-lg bg-surface p-3">
+          <p class="text-xs text-soft">Recettes</p>
+          <p class="mt-0.5 text-lg font-semibold" [style.color]="incomeColor" data-total="recettes">
+            {{ totalIncome() | number: '1.2-2' }}&nbsp;€
+          </p>
+        </div>
+        <div class="rounded-lg bg-surface p-3">
+          <p class="text-xs text-soft">Dépenses</p>
+          <p class="mt-0.5 text-lg font-semibold" [style.color]="expenseColor" data-total="depenses">
+            {{ totalExpenses() | number: '1.2-2' }}&nbsp;€
+          </p>
+        </div>
+        <div class="rounded-lg bg-surface p-3">
+          <p class="text-xs text-soft">Solde</p>
+          <p
+            class="mt-0.5 text-lg font-semibold"
+            [class.text-ink]="balance() >= 0"
+            [class.text-red-600]="balance() < 0"
+            data-total="solde"
+          >
+            {{ balance() | number: '1.2-2' }}&nbsp;€
+          </p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <app-bar-chart [labels]="monthLabels" [series]="financeSeries()" />
+      </div>
+      <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+        @for (s of financeSeries(); track s.label) {
+          <span class="inline-flex items-center gap-2 text-xs text-soft">
+            <span class="inline-block h-2.5 w-2.5 rounded-sm" [style.background]="s.color"></span>
+            {{ s.label }}
+          </span>
+        }
+      </div>
+    </div>
+
+    @if (pendingInvoices().length > 0) {
+      <div class="rounded-xl border border-line bg-white p-5" data-section="factures-a-regler">
+        <h2 class="text-base font-semibold text-ink">Factures à régler</h2>
+        @if (payError()) {
+          <p class="mt-2 text-sm text-red-600">{{ payError() }}</p>
+        }
+        <ul class="mt-3 divide-y divide-line">
+          @for (inv of pendingInvoices(); track inv.id) {
+            <li class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+              <div>
+                <p class="font-medium text-ink">{{ inv.description }}</p>
+                <p class="text-xs text-soft">
+                  {{ inv.mobil_home_title }} · {{ inv.date }}
+                  @if (inv.manager_name) {
+                    · {{ inv.manager_name }}
+                  }
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="font-semibold text-ink">{{ inv.amount | number: '1.2-2' }}&nbsp;€</span>
+                <button
+                  type="button"
+                  (click)="pay(inv)"
+                  [disabled]="payingId() === inv.id"
+                  class="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface disabled:opacity-50"
+                >
+                  Marquer payée
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
 
     <div class="rounded-xl border border-line bg-white p-5">
       <h2 class="text-base font-semibold text-ink">Récapitulatif par mobil-home</h2>

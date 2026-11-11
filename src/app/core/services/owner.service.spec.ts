@@ -84,6 +84,15 @@ describe('OwnerService', () => {
     [create, details, cancel].forEach((r) => r.flush({}));
   });
 
+  it('factures : liste et règlement', () => {
+    service.invoices().subscribe();
+    service.payInvoice(7).subscribe();
+
+    expect(http.expectOne((r) => r.method === 'GET' && r.url === `${base}/invoices`)).toBeTruthy();
+    expect(http.expectOne((r) => r.method === 'PUT' && r.url === `${base}/invoices/7/pay`)).toBeTruthy();
+    http.match(() => true).forEach((r) => r.flush(null));
+  });
+
   it('liens utiles : CRUD sur /links', () => {
     const input = { name: 'Déclaration Siblu', url: 'https://www.siblu.fr/' };
     service.links().subscribe();

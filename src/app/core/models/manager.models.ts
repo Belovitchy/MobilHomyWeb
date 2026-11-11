@@ -54,6 +54,8 @@ export interface Invoice {
   date: string; // yyyy-MM-dd
   category: InvoiceCategory;
   status: InvoiceStatus;
+  /** Gérant qui a saisi la facture (vue propriétaire). */
+  manager_name?: string | null;
 }
 
 export interface InvoiceInput {

@@ -13,9 +13,7 @@ const STATS: AdminStats = {
   vacationers: 5,
   mobilhomes: 6,
   reservations: 30,
-  reservations_to_process: 4,
   reservations_validated: 20,
-  invoices_pending_amount: 186.5,
 };
 
 describe('AdminDashboard', () => {
@@ -42,8 +40,10 @@ describe('AdminDashboard', () => {
 
     expect(tile('Propriétaires').textContent).toContain('dont 1 suspendu');
     expect(tile('Propriétaires').classList).toContain('border-amber-300');
-    expect(tile('Demandes à traiter').textContent).toContain('4');
-    expect(tile('Factures en attente').textContent).toContain('186.50 €');
+    expect(tile('Réservations').textContent).toContain('20 validée(s)');
+    // Les données métier des propriétaires ne sont plus sur ce tableau de bord
+    expect(tile('Demandes à traiter')).toBeNull();
+    expect(tile('Factures en attente')).toBeNull();
     expect(tile('Gérants').classList).not.toContain('border-amber-300');
   });
 

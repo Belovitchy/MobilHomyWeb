@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CalendarEvent } from '../models/calendar.models';
-import { ManagerInfo, ManagerInput } from '../models/manager.models';
+import { Invoice, ManagerInfo, ManagerInput } from '../models/manager.models';
 import { OwnerMobilHome, OwnerMobilHomeInput } from '../models/mobilhome.models';
 import { OwnerLink, OwnerLinkInput } from '../models/link.models';
 import {
@@ -30,6 +30,8 @@ import {
  * POST   /api/owner/reservations                   -> OwnerReservation (réservation externe, VALIDATED d'office)
  * PUT    /api/owner/reservations/{id}/details      -> OwnerReservation (client, plaque, occupants — externes uniquement)
  * PUT    /api/owner/reservations/{id}/cancel       -> OwnerReservation (annulation d'une réservation externe)
+ * GET    /api/owner/invoices                       -> Invoice[] (saisies par ses gérants)
+ * PUT    /api/owner/invoices/{id}/pay              -> Invoice (ISSUED -> PAID)
  * GET/POST/PUT/DELETE /api/owner/links[/{id}]      -> liens utiles du propriétaire
  * GET    /api/owner/calendar[?mobilHomeId=]        -> CalendarEvent[] (INTERNAL + ICAL)
  */
@@ -120,6 +122,14 @@ export class OwnerService {
   }
 
   // ----- Liens utiles -----
+
+  invoices(): Observable<Invoice[]> {
+    return this.http.get<Invoice[]>(`${this.base}/invoices`);
+  }
+
+  payInvoice(id: number): Observable<Invoice> {
+    return this.http.put<Invoice>(`${this.base}/invoices/${id}/pay`, {});
+  }
 
   links(): Observable<OwnerLink[]> {
     return this.http.get<OwnerLink[]>(`${this.base}/links`);

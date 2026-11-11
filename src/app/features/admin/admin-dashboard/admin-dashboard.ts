@@ -1,4 +1,3 @@
-import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AdminStats } from '../../../core/models/admin.models';
@@ -16,13 +15,11 @@ interface Tile {
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [RouterLink],
-  providers: [DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './admin-dashboard.html',
 })
 export class AdminDashboard {
   private readonly admin = inject(AdminService);
-  private readonly decimal = inject(DecimalPipe);
 
   readonly stats = signal<AdminStats | null>(null);
   readonly loading = signal(true);
@@ -45,17 +42,6 @@ export class AdminDashboard {
         label: 'Réservations',
         value: String(s.reservations),
         hint: `${s.reservations_validated} validée(s)`,
-      },
-      {
-        label: 'Demandes à traiter',
-        value: String(s.reservations_to_process),
-        hint: 'en attente des propriétaires',
-        alert: s.reservations_to_process > 0,
-      },
-      {
-        label: 'Factures en attente',
-        value: `${this.decimal.transform(s.invoices_pending_amount, '1.2-2')} €`,
-        hint: 'à régler par les propriétaires',
       },
     ];
   });

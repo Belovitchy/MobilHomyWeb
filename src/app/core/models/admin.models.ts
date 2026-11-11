@@ -19,7 +19,10 @@ export interface AdminOwnerInput {
   password: string;
 }
 
-/** Indicateurs de bon fonctionnement de la plateforme (GET /api/admin/stats). */
+/**
+ * Indicateurs de bon fonctionnement de la plateforme (GET /api/admin/stats).
+ * Pas de données métier des propriétaires : elles sont sur leur propre tableau de bord.
+ */
 export interface AdminStats {
   owners: number;
   owners_suspended: number;
@@ -27,7 +30,5 @@ export interface AdminStats {
   vacationers: number;
   mobilhomes: number;
   reservations: number;
-  reservations_to_process: number;
   reservations_validated: number;
-  invoices_pending_amount: number;
 }

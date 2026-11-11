@@ -1,9 +1,18 @@
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
+import { Invoice } from '../../../core/models/manager.models';
 import { OwnerMobilHome } from '../../../core/models/mobilhome.models';
 import { OwnerReservation } from '../../../core/models/reservation.models';
 import { OwnerService } from '../../../core/services/owner.service';
+import { BarChart, BarSeries } from '../../../shared/components/bar-chart/bar-chart';
 import { ChartSeries, LineChart } from '../../../shared/components/line-chart/line-chart';
+
+const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+const INCOME_COLOR = '#2E6E5A';
+const EXPENSE_COLOR = '#D97706';
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 const YEAR = new Date().getFullYear();
 const PALETTE = [
@@ -49,7 +58,7 @@ const WINDOW_WEEKS: Set<number> = (() => {
 @Component({
   selector: 'app-owner-dashboard',
   standalone: true,
-  imports: [LineChart],
+  imports: [LineChart, BarChart, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
 })
@@ -59,6 +68,9 @@ export class OwnerDashboard {
   readonly year = YEAR;
   readonly homes = signal<OwnerMobilHome[]>([]);
   readonly reservations = signal<OwnerReservation[]>([]);
+  readonly invoices = signal<Invoice[]>([]);
+  readonly payingId = signal<number | null>(null);
+  readonly payError = signal('');
   readonly loading = signal(true);
   readonly error = signal('');
   readonly selectedHomeIds = signal<Set<number>>(new Set());
@@ -66,10 +78,15 @@ export class OwnerDashboard {
   readonly weekLabels = Array.from({ length: 53 }, (_, i) => `S${i + 1}`);
 
   constructor() {
-    forkJoin({ homes: this.owner.mobilHomes(), resas: this.owner.reservations() }).subscribe({
-      next: ({ homes, resas }) => {
+    forkJoin({
+      homes: this.owner.mobilHomes(),
+      resas: this.owner.reservations(),
+      invoices: this.owner.invoices(),
+    }).subscribe({
+      next: ({ homes, resas, invoices }) => {
         this.homes.set(homes);
         this.reservations.set(resas);
+        this.invoices.set(invoices);
         this.selectedHomeIds.set(new Set(homes.map((h) => h.id)));
         this.loading.set(false);
       },
@@ -84,6 +101,72 @@ export class OwnerDashboard {
   readonly pendingCount = computed(
     () => this.reservations().filter((r) => r.status === 'COMPLETED').length,
   );
+
+  /** Factures saisies par les gérants et pas encore réglées. */
+  readonly pendingInvoices = computed(() => this.invoices().filter((i) => i.status === 'ISSUED'));
+
+  readonly pendingInvoicesAmount = computed(() =>
+    round2(this.pendingInvoices().reduce((s, i) => s + Number(i.amount), 0)),
+  );
+
+  // ----- Recettes / dépenses par mois -----
+
+  /**
+   * Recettes : prix total des réservations validées, réparti sur leurs nuits (une nuit
+   * est comptée dans le mois où elle tombe). Estimation : prix/nuit × nuits, saisi par
+   * le propriétaire pour les réservations externes.
+   */
+  readonly incomeByMonth = computed(() => {
+    const out = new Array(12).fill(0);
+    for (const r of this.reservations()) {
+      if (r.status !== 'VALIDATED' || !r.total_price) continue;
+      const nights = eachNight(r.start_date, r.end_date);
+      if (!nights.length) continue;
+      const perNight = Number(r.total_price) / nights.length;
+      for (const n of nights) if (n.getFullYear() === YEAR) out[n.getMonth()] += perNight;
+    }
+    return out.map(round2);
+  });
+
+  /** Dépenses : factures de fonctionnement (hors annulées), au mois de leur date. */
+  readonly expensesByMonth = computed(() => {
+    const out = new Array(12).fill(0);
+    for (const i of this.invoices()) {
+      if (i.status === 'CANCELLED') continue;
+      const d = parse(i.date);
+      if (d.getFullYear() === YEAR) out[d.getMonth()] += Number(i.amount);
+    }
+    return out.map(round2);
+  });
+
+  readonly monthLabels = MONTHS;
+  readonly incomeColor = INCOME_COLOR;
+  readonly expenseColor = EXPENSE_COLOR;
+
+  readonly financeSeries = computed<BarSeries[]>(() => [
+    { label: 'Recettes', color: INCOME_COLOR, values: this.incomeByMonth() },
+    { label: 'Dépenses', color: EXPENSE_COLOR, values: this.expensesByMonth() },
+  ]);
+
+  readonly totalIncome = computed(() => round2(this.incomeByMonth().reduce((a, b) => a + b, 0)));
+  readonly totalExpenses = computed(() => round2(this.expensesByMonth().reduce((a, b) => a + b, 0)));
+  readonly balance = computed(() => round2(this.totalIncome() - this.totalExpenses()));
+
+  /** Le propriétaire a réglé la facture à son gérant. */
+  pay(invoice: Invoice): void {
+    this.payingId.set(invoice.id);
+    this.payError.set('');
+    this.owner.payInvoice(invoice.id).subscribe({
+      next: (paid) => {
+        this.invoices.update((list) => list.map((i) => (i.id === paid.id ? paid : i)));
+        this.payingId.set(null);
+      },
+      error: (err) => {
+        this.payError.set(err.error?.message ?? 'Impossible de marquer la facture comme payée.');
+        this.payingId.set(null);
+      },
+    });
+  }
 
   readonly nightsThisYear = computed(() =>
     this.reservations()
