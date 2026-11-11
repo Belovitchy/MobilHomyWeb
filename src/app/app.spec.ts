@@ -1,10 +1,15 @@
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
+    // Garde-fou : repart d'un module de test vierge même si un fichier précédent l'a laissé instancié.
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
   });
 
@@ -18,6 +23,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('mobilhomyWeb');
+    expect(compiled.querySelector('a')?.textContent).toContain('Mobil');
   });
 });

@@ -1,0 +1,100 @@
+<div class="mx-auto max-w-4xl px-4 py-8">
+  <h1 class="text-xl font-bold text-ink">Mes réservations</h1>
+
+  @if (created()) {
+    <p class="mt-3 rounded-lg bg-accent-soft px-4 py-3 text-sm text-accent">
+      ✅ Demande enregistrée ! Complétez les informations manquantes puis envoyez-la au propriétaire
+      — il vous répondra sous 48 h.
+    </p>
+  }
+
+  @if (loading()) {
+    <p class="mt-6 text-sm text-soft">Chargement…</p>
+  } @else if (reservations().length === 0) {
+    <p class="mt-6 text-sm text-soft">
+      Aucune réservation pour le moment.
+      <a routerLink="/" class="text-accent underline">Voir les mobil-homes</a>
+    </p>
+  }
+
+  <div class="mt-6 space-y-4">
+    @for (res of reservations(); track res.id) {
+      <div class="rounded-xl border border-line bg-white p-4">
+        <!-- En-tête : séjour + badge -->
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <b class="text-sm text-ink">« {{ res.mobilhomeName }} » · {{ res.location }}</b>
+            <p class="mt-1 text-xs text-soft">{{ res.start_date }} → {{ res.end_date }}</p>
+          </div>
+          <span
+            [class]="[
+              'inline-block rounded-full border px-3 py-1 text-xs font-semibold',
+              badge(res.status).classes,
+            ]"
+          >
+            {{ badge(res.status).label }}
+          </span>
+        </div>
+
+        <!-- ── PENDING : brouillon à compléter ── -->
+        @if (res.status === 'PENDING') {
+          <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Il manque : {{ missing(res).join(', ') }}.
+          </p>
+          <button
+            (click)="complete(res)"
+            class="mt-3 rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+          >
+            Compléter la demande
+          </button>
+        }
+
+        <!-- ── COMPLETED : envoyé, en attente proprio ── -->
+        @if (res.status === 'COMPLETED') {
+          <p class="mt-3 text-xs text-soft">
+            📨 Dossier complet — le propriétaire va valider selon son calendrier. Vous serez notifié
+            par email.
+          </p>
+        }
+
+        <!-- ── VALIDATED : détails complets (RG-07) ── -->
+        @if (res.status === 'VALIDATED') {
+          <!-- N° de réservation camping : à présenter à l'accueil du camping -->
+          <p class="mt-3 rounded-lg border border-line px-3 py-2 text-xs text-ink" data-siblu>
+            @if (res.siblu_ref) {
+              N° de réservation camping (Siblu) : <b class="font-semibold">{{ res.siblu_ref }}</b>
+              <span class="text-soft">— à présenter à l'accueil avec votre plaque {{ res.immat }}.</span>
+            } @else {
+              <span class="text-soft"
+                >N° de réservation camping : en cours de déclaration par le propriétaire.</span
+              >
+            }
+          </p>
+          <div class="mt-3 grid gap-3 border-t border-gray-100 pt-3 sm:grid-cols-2">
+            <!-- Gérant -->
+            @if (res.manager; as m) {
+              <div class="rounded-lg bg-accent-soft p-3">
+                <p class="text-xs font-semibold text-accent">Votre contact sur place</p>
+                <p class="mt-1 text-sm text-ink">{{ m.firstname }} {{ m.name }}</p>
+                <p class="text-xs text-ink">📞 {{ m.phone }}</p>
+                <p class="text-xs text-ink">✉️ {{ m.email }}</p>
+              </div>
+            }
+            <!-- Occupants -->
+            <div>
+              <p class="text-xs font-semibold text-soft">Voyageurs ({{ res.occupants.length }})</p>
+              <ul class="mt-1 space-y-1">
+                @for (occ of res.occupants; track occ.id) {
+                  <li class="text-xs text-ink">
+                    {{ occ.firstname }} {{ occ.name }} — {{ occ.age }} ans
+                  </li>
+                }
+              </ul>
+              <p class="mt-1 text-[10px] text-soft">Âges transmis pour les FunPass (RG-05).</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

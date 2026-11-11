@@ -1,0 +1,218 @@
+<!-- dashboard.html -->
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-ink">Tableau de bord</h1>
+    <p class="mt-1 text-sm text-soft">Vue d'ensemble de tes mobil-homes pour {{ year }}.</p>
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  } @else {
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Mobil-homes</p>
+        <p class="mt-1 text-3xl font-semibold text-ink">{{ homes().length }}</p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Demandes à traiter</p>
+        <p
+          class="mt-1 text-3xl font-semibold"
+          [class.text-accent]="pendingCount() > 0"
+          [class.text-ink]="pendingCount() === 0"
+        >
+          {{ pendingCount() }}
+        </p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5" data-card="factures">
+        <p class="text-sm text-soft">Factures en attente</p>
+        <p
+          class="mt-1 text-3xl font-semibold"
+          [class.text-amber-600]="pendingInvoices().length > 0"
+          [class.text-ink]="pendingInvoices().length === 0"
+        >
+          {{ pendingInvoicesAmount() | number: '1.2-2' }}&nbsp;€
+        </p>
+        <p class="mt-1 text-xs text-soft">{{ pendingInvoices().length }} facture(s) à régler</p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Occupation 90 prochains jours</p>
+        <p class="mt-1 text-3xl font-semibold text-ink">{{ occ90() }}&nbsp;%</p>
+      </div>
+      <div class="rounded-xl border border-line bg-white p-5">
+        <p class="text-sm text-soft">Nuitées réservées {{ year }}</p>
+        <p class="mt-1 text-3xl font-semibold text-ink">{{ nightsThisYear() }}</p>
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-line bg-white p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-semibold text-ink">Taux d'occupation par semaine</h2>
+          <p class="mt-0.5 text-xs text-soft">
+            Réservations validées · survole les points pour le détail.
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="selectAll()"
+          class="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface"
+        >
+          Tout afficher
+        </button>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        @for (h of homes(); track h.id) {
+          <button
+            type="button"
+            (click)="toggleHome(h.id)"
+            [class]="chipClasses(selectedHomeIds().has(h.id))"
+          >
+            {{ h.title }}
+          </button>
+        }
+      </div>
+
+      @if (homes().length === 0) {
+        <p class="mt-6 text-sm text-soft">
+          Ajoute d'abord un mobil-home pour voir ta courbe d'occupation.
+        </p>
+      } @else {
+        <div class="mt-4">
+          <app-line-chart [labels]="weekLabels" [series]="chartSeries()" />
+        </div>
+        <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+          @for (s of chartSeries(); track s.label) {
+            <span class="inline-flex items-center gap-2 text-xs text-soft">
+              <span
+                class="inline-block h-2.5 w-2.5 rounded-full"
+                [style.background]="s.color"
+              ></span>
+              {{ s.label }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="rounded-xl border border-line bg-white p-5" data-section="finances">
+      <div>
+        <h2 class="text-base font-semibold text-ink">Recettes et dépenses {{ year }}</h2>
+        <p class="mt-0.5 text-xs text-soft">
+          Recettes estimées sur les réservations validées (réparties par nuitée) · dépenses : factures
+          de tes gérants, hors annulées.
+        </p>
+      </div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-lg bg-surface p-3">
+          <p class="text-xs text-soft">Recettes</p>
+          <p class="mt-0.5 text-lg font-semibold" [style.color]="incomeColor" data-total="recettes">
+            {{ totalIncome() | number: '1.2-2' }}&nbsp;€
+          </p>
+        </div>
+        <div class="rounded-lg bg-surface p-3">
+          <p class="text-xs text-soft">Dépenses</p>
+          <p class="mt-0.5 text-lg font-semibold" [style.color]="expenseColor" data-total="depenses">
+            {{ totalExpenses() | number: '1.2-2' }}&nbsp;€
+          </p>
+        </div>
+        <div class="rounded-lg bg-surface p-3">
+          <p class="text-xs text-soft">Solde</p>
+          <p
+            class="mt-0.5 text-lg font-semibold"
+            [class.text-ink]="balance() >= 0"
+            [class.text-red-600]="balance() < 0"
+            data-total="solde"
+          >
+            {{ balance() | number: '1.2-2' }}&nbsp;€
+          </p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <app-bar-chart [labels]="monthLabels" [series]="financeSeries()" />
+      </div>
+      <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+        @for (s of financeSeries(); track s.label) {
+          <span class="inline-flex items-center gap-2 text-xs text-soft">
+            <span class="inline-block h-2.5 w-2.5 rounded-sm" [style.background]="s.color"></span>
+            {{ s.label }}
+          </span>
+        }
+      </div>
+    </div>
+
+    @if (pendingInvoices().length > 0) {
+      <div class="rounded-xl border border-line bg-white p-5" data-section="factures-a-regler">
+        <h2 class="text-base font-semibold text-ink">Factures à régler</h2>
+        @if (payError()) {
+          <p class="mt-2 text-sm text-red-600">{{ payError() }}</p>
+        }
+        <ul class="mt-3 divide-y divide-line">
+          @for (inv of pendingInvoices(); track inv.id) {
+            <li class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+              <div>
+                <p class="font-medium text-ink">{{ inv.description }}</p>
+                <p class="text-xs text-soft">
+                  {{ inv.mobil_home_title }} · {{ inv.date }}
+                  @if (inv.manager_name) {
+                    · {{ inv.manager_name }}
+                  }
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="font-semibold text-ink">{{ inv.amount | number: '1.2-2' }}&nbsp;€</span>
+                <button
+                  type="button"
+                  (click)="pay(inv)"
+                  [disabled]="payingId() === inv.id"
+                  class="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface disabled:opacity-50"
+                >
+                  Marquer payée
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="rounded-xl border border-line bg-white p-5">
+      <h2 class="text-base font-semibold text-ink">Récapitulatif par mobil-home</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-line text-left text-xs uppercase tracking-wide text-soft">
+              <th class="pb-2 pr-4 font-medium">Mobil-home</th>
+              <th class="pb-2 pr-4 font-medium">Capacité</th>
+              <th class="pb-2 pr-4 font-medium">Nuitées {{ year }}</th>
+              <th class="pb-2 font-medium">Occupation 90 j</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of homeStats(); track s.home.id) {
+              <tr class="border-b border-line/60 last:border-0">
+                <td class="py-3 pr-4 font-medium text-ink">{{ s.home.title }}</td>
+                <td class="py-3 pr-4 text-soft">{{ s.home.capacity }} pers.</td>
+                <td class="py-3 pr-4 text-ink">{{ s.nights }}</td>
+                <td class="py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-2 w-32 overflow-hidden rounded-full bg-surface">
+                      <div class="h-full rounded-full bg-accent" [style.width.%]="s.occ90"></div>
+                    </div>
+                    <span class="text-xs text-soft">{{ s.occ90 }}&nbsp;%</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

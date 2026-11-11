@@ -1,0 +1,55 @@
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold text-ink">Calendrier</h1>
+      <p class="mt-1 text-sm text-soft">
+        Disponibilités d'un mobil-home à la fois : choisis-le ci-dessous.
+      </p>
+    </div>
+    <a
+      [href]="exportUrl"
+      target="_blank"
+      rel="noopener"
+      class="rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-surface"
+      >Exporter (.ics)</a
+    >
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+
+  <div class="flex flex-wrap gap-2">
+    @for (h of homes(); track h.id) {
+      <button
+        type="button"
+        (click)="setFilter(h.id)"
+        [class]="chipClasses(filterHomeId() === h.id)"
+      >
+        {{ h.title }}
+      </button>
+    }
+  </div>
+
+  <div class="rounded-xl border border-line bg-white p-5">
+    <app-calendar [reservations]="calendarEvents()" />
+  </div>
+
+  <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-soft">
+    <span class="inline-flex items-center gap-2"
+      ><span class="inline-block h-3 w-3 rounded bg-accent"></span> Réservation validée</span
+    >
+    <span class="inline-flex items-center gap-2"
+      ><span class="inline-block h-3 w-3 rounded bg-amber-400"></span> Demande envoyée (à
+      traiter)</span
+    >
+    <span class="inline-flex items-center gap-2"
+      ><span class="cal-external inline-block h-3 w-3 rounded"></span> Séjour externe (iCal)</span
+    >
+  </div>
+</div>

@@ -1,0 +1,152 @@
+<div class="space-y-6">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold text-ink">Propriétaires</h1>
+      <p class="mt-1 text-sm text-soft">
+        Un compte suspendu ne peut plus se connecter, et ses sessions en cours sont coupées.
+      </p>
+    </div>
+    @if (!formOpen()) {
+      <button
+        type="button"
+        (click)="openForm()"
+        class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90"
+      >
+        + Nouveau propriétaire
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+  @if (success()) {
+    <div class="rounded-xl border border-accent/20 bg-accent-soft p-4 text-sm text-accent">
+      {{ success() }}
+    </div>
+  }
+
+  @if (formOpen()) {
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="space-y-5 rounded-xl border border-line bg-white p-6"
+    >
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="firstname">Prénom *</label>
+          <input id="firstname" type="text" formControlName="firstname" [class]="inputClasses(form.controls.firstname)" />
+          @if (isInvalid(form.controls.firstname)) {
+            <p class="mt-1 text-xs text-red-500">Le prénom est obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="name">Nom *</label>
+          <input id="name" type="text" formControlName="name" [class]="inputClasses(form.controls.name)" />
+          @if (isInvalid(form.controls.name)) {
+            <p class="mt-1 text-xs text-red-500">Le nom est obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="email">Email (identifiant) *</label>
+          <input id="email" type="email" formControlName="email" [class]="inputClasses(form.controls.email)" />
+          @if (isInvalid(form.controls.email)) {
+            <p class="mt-1 text-xs text-red-500">Email invalide.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="phone">Téléphone</label>
+          <input id="phone" type="tel" formControlName="phone" [class]="inputClasses(form.controls.phone)" />
+          @if (isInvalid(form.controls.phone)) {
+            <p class="mt-1 text-xs text-red-500">Numéro invalide.</p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-1 block text-sm font-medium text-ink" for="password"
+            >Mot de passe provisoire *</label
+          >
+          <input
+            id="password"
+            type="text"
+            formControlName="password"
+            [class]="inputClasses(form.controls.password)"
+            placeholder="8 caractères minimum"
+          />
+          @if (isInvalid(form.controls.password)) {
+            <p class="mt-1 text-xs text-red-500">8 caractères minimum.</p>
+          }
+          <p class="mt-1 text-xs text-soft">
+            Le propriétaire pourra le changer depuis « Mon profil ».
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 border-t border-line pt-4">
+        <button
+          type="button"
+          (click)="closeForm()"
+          class="rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-surface"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+        >
+          {{ saving() ? 'Création…' : 'Créer le compte' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+
+  @if (!loading() && owners().length > 0) {
+    <div class="overflow-x-auto rounded-xl border border-line bg-white">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-line text-xs tracking-wide text-soft uppercase">
+          <tr>
+            <th class="px-4 py-3 font-medium">Nom</th>
+            <th class="px-4 py-3 font-medium">Email</th>
+            <th class="px-4 py-3 text-right font-medium">Mobil-homes</th>
+            <th class="px-4 py-3 text-right font-medium">Réservations</th>
+            <th class="px-4 py-3 font-medium">Statut</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of owners(); track o.id) {
+            <tr class="border-b border-line last:border-0" [attr.data-id]="o.id">
+              <td class="px-4 py-3 font-medium text-ink">{{ o.firstname }} {{ o.name }}</td>
+              <td class="px-4 py-3 text-soft">{{ o.email }}</td>
+              <td class="px-4 py-3 text-right">{{ o.mobilhomes_count }}</td>
+              <td class="px-4 py-3 text-right">{{ o.reservations_count }}</td>
+              <td class="px-4 py-3">
+                @if (o.enabled) {
+                  <span class="rounded-full border border-accent/20 bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent">Actif</span>
+                } @else {
+                  <span class="rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600">Suspendu</span>
+                }
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  (click)="toggle(o)"
+                  [disabled]="busyId() === o.id"
+                  class="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+                  [class]="o.enabled ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-line text-ink hover:bg-surface'"
+                >
+                  {{ o.enabled ? 'Suspendre' : 'Réactiver' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

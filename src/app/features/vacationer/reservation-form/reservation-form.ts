@@ -1,11 +1,9 @@
 import { Component, Input, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  MobilHome,
-  OccupantPayload,
-  ReservationPayload,
-} from '../../../core/models/vacationer.models';
+import { MobilHome } from '../../../core/models/mobilhome.models';
+import { OccupantPayload } from '../../../core/models/occupant.models';
+import { ReservationPayload } from '../../../core/models/reservation.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { MobilHomeService } from '../../../core/services/mobil-home.service';
 import { ReservationService } from '../../../core/services/reservation.service';
@@ -89,6 +87,7 @@ export class ReservationForm {
         age: Number(o.age),
       })),
     };
+    console.log('Reservation payload', payload);
     this.reservationApi.create(payload).subscribe({
       next: () =>
         this.router.navigate(['/mon-compte/reservations'], {
