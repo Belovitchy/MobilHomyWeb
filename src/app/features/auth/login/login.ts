@@ -35,7 +35,7 @@ export class Login {
           MANAGER: '/manager',
           VACATIONER: '/mon-compte-vacationer',
         };
-        this.router.navigateByUrl(routes[res.authority] ?? '/accueil');
+        this.router.navigateByUrl(routes[res.authority] ?? '/');
       },
       error: (err) => {
         // Le back n'explique le refus (ex. « Compte suspendu ») qu'après un mot de passe correct.

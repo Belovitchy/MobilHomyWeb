@@ -27,7 +27,6 @@ import { ProfileComponent } from './features/vacationer/profile/profile';
 import { ReservationForm } from './features/vacationer/reservation-form/reservation-form';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'accueil', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   { path: 'forbidden', component: Forbidden },
@@ -111,8 +110,5 @@ export const routes: Routes = [
     ],
   },
 
-  { path: 'login', component: Login },
-  { path: 'forbidden', component: Forbidden },
-  // ... admin/proprietaire/gerant inchangés
   { path: '**', redirectTo: '' },
 ];
