@@ -4,6 +4,9 @@ import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { OwnerDashboard } from './features/owner/dashboard/dashboard';
+import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard';
+import { AdminLayout } from './features/admin/admin-layout/admin-layout';
+import { AdminOwners } from './features/admin/admin-owners/admin-owners';
 import { ManagerInvoices } from './features/manager/manager-invoices/manager-invoices';
 import { ManagerLayout } from './features/manager/manager-layout/manager-layout';
 import { ManagerReservations } from './features/manager/manager-reservations/manager-reservations';
@@ -82,6 +85,17 @@ export const routes: Routes = [
       { path: 'managers', component: ManagerList, title: 'MobilHomy — Gérants' },
       { path: 'calendar', component: OwnerCalendar, title: 'MobilHomy — Calendrier' },
       { path: 'mon-compte', component: ProfileComponent, title: 'MobilHomy — Mon compte' },
+    ],
+  },
+
+  {
+    path: 'admin',
+    component: AdminLayout,
+    canActivate: [roleGuard('ADMIN')],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      { path: 'dashboard', component: AdminDashboard, title: 'MobilHomy — Administration' },
+      { path: 'owners', component: AdminOwners, title: 'MobilHomy — Propriétaires' },
     ],
   },
 

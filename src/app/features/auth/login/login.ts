@@ -33,12 +33,13 @@ export class Login {
           ADMIN: '/admin',
           OWNER: '/owner',
           MANAGER: '/manager',
-          VACATIONER: '/vacationer',
+          VACATIONER: '/mon-compte-vacationer',
         };
         this.router.navigateByUrl(routes[res.authority] ?? '/accueil');
       },
-      error: () => {
-        this.error.set('Identifiants incorrects.');
+      error: (err) => {
+        // Le back n'explique le refus (ex. « Compte suspendu ») qu'après un mot de passe correct.
+        this.error.set(err?.error?.message ?? 'Identifiants incorrects.');
         this.loading.set(false);
       },
     });

@@ -9,6 +9,8 @@
           <a routerLink="/owner/dashboard" class="text-soft hover:text-accent">Tableau de bord</a>
         } @else if (auth.currentUser()?.authority === 'VACATIONER') {
           <a routerLink="/mon-compte-vacationer" class="text-soft hover:text-accent">Mon compte</a>
+        } @else if (auth.currentUser()?.authority === 'ADMIN') {
+          <a routerLink="/admin/dashboard" class="text-soft hover:text-accent">Administration</a>
         } @else if (auth.currentUser()?.authority === 'MANAGER') {
           <a routerLink="/manager/reservations" class="text-soft hover:text-accent">Mon espace</a>
         }

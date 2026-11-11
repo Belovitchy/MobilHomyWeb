@@ -60,4 +60,27 @@ describe('Login', () => {
     expect(component.error()).toBe('Identifiants incorrects.');
     expect(component.loading()).toBe(false);
   });
+
+  it('redirige un vacancier vers son espace « mon compte »', () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    component.form.setValue({ login: 'julie@mail.fr', password: 'vacationer' });
+
+    component.submit();
+    http
+      .expectOne(`${environment.apiUrl}/auth/login`)
+      .flush({ token: 'h.p.s', userId: 7, firstname: 'Julie', name: 'Martin', authority: 'VACATIONER' });
+
+    expect(navigate).toHaveBeenCalledWith('/mon-compte-vacationer');
+  });
+
+  it('explique un compte suspendu (message du back)', () => {
+    component.form.setValue({ login: 'petit@mail.fr', password: 'owner' });
+
+    component.submit();
+    http
+      .expectOne(`${environment.apiUrl}/auth/login`)
+      .flush({ message: "Compte suspendu — contactez l'administrateur" }, { status: 403, statusText: 'Forbidden' });
+
+    expect(component.error()).toContain('Compte suspendu');
+  });
 });
