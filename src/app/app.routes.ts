@@ -4,6 +4,9 @@ import { Forbidden } from './features/auth/forbidden/forbidden';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { OwnerDashboard } from './features/owner/dashboard/dashboard';
+import { ManagerInvoices } from './features/manager/manager-invoices/manager-invoices';
+import { ManagerLayout } from './features/manager/manager-layout/manager-layout';
+import { ManagerReservations } from './features/manager/manager-reservations/manager-reservations';
 import { ManagerList } from './features/owner/manager-list/manager-list';
 import { MobilHomeForm } from './features/owner/mobil-home-form/mobil-home-form';
 import { OwnerCalendar } from './features/owner/owner-calendar/owner-calendar';
@@ -65,6 +68,18 @@ export const routes: Routes = [
       { path: 'requests', component: RequestsList, title: 'MobilHomy — Demandes' },
       { path: 'managers', component: ManagerList, title: 'MobilHomy — Gérants' },
       { path: 'calendar', component: OwnerCalendar, title: 'MobilHomy — Calendrier' },
+      { path: 'mon-compte', component: ProfileComponent, title: 'MobilHomy — Mon compte' },
+    ],
+  },
+
+  {
+    path: 'manager',
+    component: ManagerLayout,
+    canActivate: [roleGuard('MANAGER')],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'reservations' },
+      { path: 'reservations', component: ManagerReservations, title: 'MobilHomy — Séjours' },
+      { path: 'invoices', component: ManagerInvoices, title: 'MobilHomy — Factures' },
       { path: 'mon-compte', component: ProfileComponent, title: 'MobilHomy — Mon compte' },
     ],
   },

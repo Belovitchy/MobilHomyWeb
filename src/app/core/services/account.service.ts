@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 const ACCOUNT_PATHS: Partial<Record<Authority, string>> = {
   VACATIONER: 'vacationer',
   OWNER: 'owner',
-  // MANAGER: 'manager', ← à activer quand le back exposera /api/manager/account
+  MANAGER: 'manager',
 };
 
 @Injectable({ providedIn: 'root' })
