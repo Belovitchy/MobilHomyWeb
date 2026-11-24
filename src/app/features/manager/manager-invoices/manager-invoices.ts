@@ -139,9 +139,9 @@ export class ManagerInvoices {
         this.busyId.set(null);
         this.reload();
       },
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Annulation impossible (facture déjà payée ?).');
+        this.error.set(err?.error?.message ?? 'Annulation impossible (facture déjà payée ?).');
       },
     });
   }

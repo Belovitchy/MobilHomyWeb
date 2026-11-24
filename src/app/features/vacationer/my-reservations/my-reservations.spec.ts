@@ -45,11 +45,11 @@ describe('MyReservations', () => {
       return fixture.nativeElement as HTMLElement;
     }
 
-    it('affiche le n° Siblu d’une réservation confirmée, avec la plaque à présenter', () => {
+    it('affiche le n° Siblu d’une réservation confirmée, et son usage (FunPass)', () => {
       const el = show([{ ...base, id: 1, status: 'VALIDATED', siblu_ref: 'SBLU-RES-10421' }]);
 
       expect(el.querySelector('[data-siblu]')?.textContent).toContain('SBLU-RES-10421');
-      expect(el.querySelector('[data-siblu]')?.textContent).toContain('AA-123-BB');
+      expect(el.querySelector('[data-siblu]')?.textContent).toContain('FunPass');
     });
 
     it('indique que la déclaration est en cours tant que le propriétaire n’a pas saisi le n°', () => {

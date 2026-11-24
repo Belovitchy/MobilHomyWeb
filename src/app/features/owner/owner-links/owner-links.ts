@@ -68,9 +68,9 @@ export class OwnerLinks {
         this.saving.set(false);
         this.cancel();
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.error.set('Enregistrement impossible — vérifie le nom et l’URL.');
+        this.error.set(err?.error?.message ?? 'Enregistrement impossible — vérifie le nom et l’URL.');
       },
     });
   }
@@ -80,9 +80,9 @@ export class OwnerLinks {
     this.busyId.set(link.id);
     this.store.remove(link.id).subscribe({
       next: () => this.busyId.set(null),
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Suppression impossible.');
+        this.error.set(err?.error?.message ?? 'Suppression impossible.');
       },
     });
   }

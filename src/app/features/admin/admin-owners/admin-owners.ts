@@ -104,9 +104,9 @@ export class AdminOwners {
         this.busyId.set(null);
         this.owners.update((list) => list.map((x) => (x.id === o.id ? updated : x)));
       },
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Action impossible — réessaie.');
+        this.error.set(err?.error?.message ?? 'Action impossible — réessaie.');
       },
     });
   }

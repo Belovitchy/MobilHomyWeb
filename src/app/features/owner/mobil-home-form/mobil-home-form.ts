@@ -183,9 +183,9 @@ export class MobilHomeForm {
         : this.owner.updateMobilHome(this.id()!, input);
     call.subscribe({
       next: () => this.router.navigate(['/owner/mobil-homes']),
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.error.set('Enregistrement impossible — vérifie les champs puis réessaie.');
+        this.error.set(err?.error?.message ?? 'Enregistrement impossible — vérifie les champs puis réessaie.');
       },
     });
   }

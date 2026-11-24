@@ -114,9 +114,9 @@ export class ManagerList {
         this.cancel();
         this.load();
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.error.set('Enregistrement impossible (email déjà utilisé ?).');
+        this.error.set(err?.error?.message ?? 'Enregistrement impossible (email déjà utilisé ?).');
       },
     });
   }
@@ -126,9 +126,9 @@ export class ManagerList {
     this.busyId.set(m.id);
     this.owner.deleteManager(m.id).subscribe({
       next: () => this.load(),
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Suppression impossible.');
+        this.error.set(err?.error?.message ?? 'Suppression impossible.');
       },
     });
   }

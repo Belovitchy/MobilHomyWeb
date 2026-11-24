@@ -48,7 +48,7 @@ export class CompleteReservation implements OnInit {
         return;
       }
       if (res.status !== 'PENDING') {
-        this.router.navigate(['/mon-compte/reservations']);
+        this.router.navigate(['/mon-compte-vacationer/reservations']);
         return;
       }
       this.reservation.set(res);
@@ -129,14 +129,15 @@ export class CompleteReservation implements OnInit {
 
     call$.subscribe({
       next: () => {
-        this.router.navigate(['/mon-compte/reservations'], {
+        this.router.navigate(['/mon-compte-vacationer/reservations'], {
           queryParams: send ? { sent: '1' } : {},
         });
       },
       error: (err) => {
-        // Le back renvoie 400 + { "error": "..." } si le submit est incomplet
+        // Le back renvoie { "message": "..." } (ApiExceptionHandler) : 400 saisie invalide,
+        // 409 règle métier (ex. trop d'occupants, demande déjà envoyée)
         this.error.set(
-          err.error?.error ??
+          err.error?.message ??
             (send
               ? 'Envoi refusé par le serveur — vérifiez que le dossier est complet.'
               : "Erreur lors de l'enregistrement. Réessayez."),

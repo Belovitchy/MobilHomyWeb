@@ -2,10 +2,10 @@
   @if (notFound()) {
     <p class="text-sm text-red-700">
       Réservation introuvable.
-      <a routerLink="/mon-compte/reservations" class="text-accent underline">Retour</a>
+      <a routerLink="/mon-compte-vacationer/reservations" class="text-accent underline">Retour</a>
     </p>
   } @else if (reservation(); as res) {
-    <a routerLink="/mon-compte/reservations" class="text-xs text-soft hover:text-accent">
+    <a routerLink="/mon-compte-vacationer/reservations" class="text-xs text-soft hover:text-accent">
       ← Mes réservations
     </a>
 

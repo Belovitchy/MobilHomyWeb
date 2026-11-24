@@ -90,9 +90,9 @@ export class RequestsList {
         this.busyId.set(null);
         this.load();
       },
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Validation impossible — réessaie.');
+        this.error.set(err?.error?.message ?? 'Validation impossible — réessaie.');
       },
     });
   }
@@ -106,9 +106,9 @@ export class RequestsList {
         this.busyId.set(null);
         this.load();
       },
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Rejet impossible — réessaie.');
+        this.error.set(err?.error?.message ?? 'Rejet impossible — réessaie.');
       },
     });
   }
@@ -140,9 +140,9 @@ export class RequestsList {
         this.busyId.set(null);
         this.load();
       },
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set('Annulation impossible — réessaie.');
+        this.error.set(err?.error?.message ?? 'Annulation impossible — réessaie.');
       },
     });
   }
@@ -180,9 +180,9 @@ export class RequestsList {
           list.map((x) => (x.id === r.id ? { ...x, siblu_ref: updated.siblu_ref } : x)),
         );
       },
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.sibluError.set('Enregistrement impossible — réessaie.');
+        this.sibluError.set(err?.error?.message ?? 'Enregistrement impossible — réessaie.');
       },
     });
   }

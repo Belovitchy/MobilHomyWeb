@@ -43,9 +43,9 @@ export class OwnerMobilHomeList {
     this.busyId.set(home.id);
     this.owner.deleteMobilHome(home.id).subscribe({
       next: () => this.load(),
-      error: () => {
+      error: (err) => {
         this.busyId.set(null);
-        this.error.set("Suppression impossible — vérifie qu'aucune réservation n'y est rattachée.");
+        this.error.set(err?.error?.message ?? "Suppression impossible — vérifie qu'aucune réservation n'y est rattachée.");
       },
     });
   }
