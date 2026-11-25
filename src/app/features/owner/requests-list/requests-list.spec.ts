@@ -69,7 +69,7 @@ describe('RequestsList (demandes du propriétaire)', () => {
       .expectOne(`${URL}/1/validate`)
       .flush({ message: 'Déjà réservé' }, { status: 409, statusText: 'Conflict' });
 
-    expect(component.error()).toContain('Validation impossible');
+    expect(component.error()).toBe('Déjà réservé'); // message du serveur repris tel quel
     expect(component.busyId()).toBeNull();
   });
 

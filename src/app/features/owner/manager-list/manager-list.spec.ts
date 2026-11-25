@@ -94,7 +94,7 @@ describe('ManagerList (gérants du propriétaire)', () => {
 
       http.expectOne(URL).flush({ message: 'Email déjà utilisé' }, { status: 409, statusText: 'Conflict' });
 
-      expect(component.error()).toContain('email déjà utilisé');
+      expect(component.error()).toBe('Email déjà utilisé'); // message du serveur repris tel quel
       expect(component.formOpen()).toBe(true);
     });
   });
