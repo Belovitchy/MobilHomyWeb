@@ -1,0 +1,202 @@
+<div class="space-y-6">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold text-ink">Factures</h1>
+      <p class="mt-1 text-sm text-soft">
+        Prestations et consommables avancés pour les mobil-homes que tu gères.
+      </p>
+    </div>
+    @if (!formOpen() && mobilHomes().length > 0) {
+      <button
+        type="button"
+        (click)="openForm()"
+        class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90"
+      >
+        + Nouvelle facture
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+  @if (success()) {
+    <div class="rounded-xl border border-accent/20 bg-accent-soft p-4 text-sm text-accent">
+      {{ success() }}
+    </div>
+  }
+  @if (loading()) {
+    <p class="text-sm text-soft">Chargement…</p>
+  }
+
+  @if (!loading() && mobilHomes().length === 0) {
+    <div
+      class="rounded-xl border border-dashed border-line bg-white p-10 text-center text-sm text-soft"
+    >
+      Aucun mobil-home ne t'est encore confié : demande au propriétaire de t'affecter.
+    </div>
+  }
+
+  <!-- Formulaire de saisie -->
+  @if (formOpen()) {
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="space-y-5 rounded-xl border border-line bg-white p-6"
+    >
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="mobil_home_id"
+            >Mobil-home *</label
+          >
+          <select
+            id="mobil_home_id"
+            formControlName="mobil_home_id"
+            [class]="inputClasses(form.controls.mobil_home_id)"
+          >
+            <option [ngValue]="null" disabled>Choisir…</option>
+            @for (h of mobilHomes(); track h.id) {
+              <option [ngValue]="h.id">
+                {{ h.title }}{{ h.location ? ' — ' + h.location : '' }}
+              </option>
+            }
+          </select>
+          @if (isInvalid(form.controls.mobil_home_id)) {
+            <p class="mt-1 text-xs text-red-500">Choisis le mobil-home concerné.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="category">Catégorie *</label>
+          <select id="category" formControlName="category" [class]="inputClasses(form.controls.category)">
+            @for (c of categories; track c.value) {
+              <option [ngValue]="c.value">{{ c.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-1 block text-sm font-medium text-ink" for="description"
+            >Libellé *</label
+          >
+          <input
+            id="description"
+            type="text"
+            formControlName="description"
+            [class]="inputClasses(form.controls.description)"
+            placeholder="Ménage fin de séjour"
+          />
+          @if (isInvalid(form.controls.description)) {
+            <p class="mt-1 text-xs text-red-500">Le libellé est obligatoire.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="amount">Montant (€) *</label>
+          <input
+            id="amount"
+            type="number"
+            min="0.01"
+            step="0.01"
+            formControlName="amount"
+            [class]="inputClasses(form.controls.amount)"
+          />
+          @if (isInvalid(form.controls.amount)) {
+            <p class="mt-1 text-xs text-red-500">Montant supérieur à 0 attendu.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-ink" for="date">Date *</label>
+          <input
+            id="date"
+            type="date"
+            formControlName="date"
+            [class]="inputClasses(form.controls.date)"
+          />
+          @if (isInvalid(form.controls.date)) {
+            <p class="mt-1 text-xs text-red-500">Date du jour ou passée.</p>
+          }
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 border-t border-line pt-4">
+        <button
+          type="button"
+          (click)="closeForm()"
+          class="rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-surface"
+        >
+          Fermer
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+        >
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  <!-- Liste -->
+  @if (!loading() && invoices().length > 0) {
+    <p class="text-sm text-soft">
+      En attente de règlement :
+      <b class="text-ink">{{ pendingTotal() | number: '1.2-2' }} €</b>
+    </p>
+    <div class="overflow-x-auto rounded-xl border border-line bg-white">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-line text-xs tracking-wide text-soft uppercase">
+          <tr>
+            <th class="px-4 py-3 font-medium">Date</th>
+            <th class="px-4 py-3 font-medium">Mobil-home</th>
+            <th class="px-4 py-3 font-medium">Libellé</th>
+            <th class="px-4 py-3 text-right font-medium">Montant</th>
+            <th class="px-4 py-3 font-medium">Statut</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (i of invoices(); track i.id) {
+            <tr class="border-b border-line last:border-0" [attr.data-id]="i.id">
+              <td class="px-4 py-3 whitespace-nowrap">{{ i.date | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-3">{{ i.mobil_home_title }}</td>
+              <td class="px-4 py-3">
+                {{ i.description }}
+                <span class="block text-xs text-soft">{{ categoryLabel(i.category) }}</span>
+              </td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                {{ i.amount | number: '1.2-2' }} €
+              </td>
+              <td class="px-4 py-3">
+                <span
+                  class="rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                  [class]="badge(i.status).classes"
+                  >{{ badge(i.status).label }}</span
+                >
+              </td>
+              <td class="px-4 py-3 text-right">
+                @if (i.status === 'ISSUED') {
+                  <button
+                    type="button"
+                    (click)="cancel(i)"
+                    [disabled]="busyId() === i.id"
+                    class="rounded-lg border border-line px-3 py-1.5 text-xs text-soft hover:bg-surface disabled:opacity-50"
+                  >
+                    Annuler
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading() && invoices().length === 0 && mobilHomes().length > 0) {
+    <div
+      class="rounded-xl border border-dashed border-line bg-white p-10 text-center text-sm text-soft"
+    >
+      Aucune facture pour l'instant.
+    </div>
+  }
+</div>

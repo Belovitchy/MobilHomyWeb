@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment.development';
-import { MobilHome } from '../../../core/models/vacationer.models';
+import { MobilHome } from '../../../core/models/mobilhome.models';
 import { MobilHomeService } from '../../../core/services/mobil-home.service';
 
 @Component({

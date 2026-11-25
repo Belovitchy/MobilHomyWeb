@@ -1,0 +1,174 @@
+/* ===== Calendrier résa — palette maquette MobilHomy ===== */
+
+.calendar {
+  background: #ffffff;
+  border: 1px solid #d8dbe0; /* --line */
+  border-radius: 12px;
+  padding: 14px;
+}
+
+/* --- En-tête --- */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.calendar-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937; /* --ink */
+}
+
+.month-nav {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #d8dbe0;
+  border-radius: 8px;
+  color: #6b7280; /* --soft */
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.month-nav:hover {
+  border-color: #2e6e5a; /* --accent */
+  color: #2e6e5a;
+}
+
+/* --- Grille --- */
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+th {
+  font-size: 10px;
+  font-weight: 500;
+  color: #6b7280;
+  padding-bottom: 4px;
+  text-align: center;
+}
+
+td {
+  height: 36px;
+  padding: 2px;
+  border: 1px solid #eceef1; /* --line2 */
+  vertical-align: top;
+}
+td.empty {
+  border-color: transparent;
+}
+
+td:not(.empty):not(.booked):hover {
+  background: #fafafa;
+}
+
+/* Aujourd'hui : anneau vert (comme l'accent de la maquette) */
+td.today {
+  outline: 2px solid #2e6e5a;
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+/* --- Contenu cellule --- */
+.day-number {
+  font-size: 10px;
+  color: #1f2937;
+  padding-left: 2px;
+}
+td.booked .day-number {
+  color: #2e6e5a;
+  font-weight: 600;
+}
+
+.day-indicators {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+/* Les pastilles m/a — libres par défaut */
+.indicator {
+  flex: 1;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 8px;
+  color: #a9aeb6;
+  background: #e8eaed; /* --ph */
+}
+/* Occupées : plein vert */
+/* Chaque demi-journée possède son propre état */
+.indicator.booked {
+  background: #2e6e5a;
+  color: #ffffff;
+}
+
+.indicator.free {
+  background: #e8eaed;
+}
+
+/* Créneau importé d'une plateforme externe (iCal) : hachuré gris */
+.indicator.external {
+  background: repeating-linear-gradient(45deg, #9ca3af 0 3px, #d1d5db 3px 6px);
+}
+
+/* Demande soumise, à traiter par le propriétaire : orange (= amber-400 de la légende owner) */
+.indicator.pending {
+  background: #fbbf24;
+  color: #ffffff;
+}
+
+/* --- Légende --- */
+.calendar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.calendar-legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 5px;
+  vertical-align: -2px;
+  background: #fff;
+  border: 1px solid transparent;
+}
+
+.calendar-legend i.legend-today {
+  border: 2px solid #2e6e5a; /* anneau vert = aujourd'hui */
+}
+
+.calendar-legend i.legend-booked {
+  background: #2e6e5a; /* fond vert clair + bordure verte */
+  border: 1px solid #2e6e5a;
+}
+
+.calendar-legend i.legend-pending {
+  background: #fbbf24;
+  border: 1px solid #fbbf24;
+}
+
+.calendar-legend i.legend-external {
+  background: repeating-linear-gradient(45deg, #9ca3af 0 3px, #d1d5db 3px 6px);
+  border: 1px solid #d8dbe0;
+}
+
+.calendar-legend i.legend-free {
+  background: #e8eaed; /* pastille grise = libre */
+  border: 1px solid #d8dbe0;
+}
